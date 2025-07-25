@@ -1,1 +1,1 @@
-# queen-solver
+# queens-solver
