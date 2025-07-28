@@ -2,6 +2,7 @@ package com.dpforge.easyraster
 
 enum class Color(val value: Char) {
     PURPLE('p'),
+    VIOLET('v'),
     ORANGE('o'),
     BLUE('b'),
     GREEN('g'),

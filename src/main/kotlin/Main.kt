@@ -6,6 +6,7 @@ import kotlin.collections.iterator
 
 private val ANSI_BG_COLOR = mapOf(
     Color.PURPLE to "\u001B[45m",
+    Color.VIOLET to "\u001B[0;105m",
     Color.ORANGE to "\u001B[0;101m", // high intensity red
     Color.BLUE to "\u001B[44m",
     Color.GREEN to "\u001B[42m",
@@ -20,14 +21,13 @@ private val ANSI_COLOR_WHITE = "\u001B[97m";
 
 fun main() {
     val encodedField = listOf(
-        "ppooobbb",
-        "pppogbgb",
-        "pppogggp",
-        "pppppppp",
-        "pwwwprrp",
-        "pwywyrdd",
-        "ppyyyrrd",
-        "ppppppdd",
+        "ppppppo",
+        "pbgggpo",
+        "pbgpppo",
+        "pbbwooo",
+        "pprryyy",
+        "ypprrry",
+        "yyyyyyy",
     )
     val field = decodeField(encodedField)
     printField(field)
