@@ -21,13 +21,14 @@ private val ANSI_COLOR_WHITE = "\u001B[97m";
 
 fun main() {
     val encodedField = listOf(
-        "ppppppo",
-        "pbgggpo",
-        "pbgpppo",
-        "pbbwooo",
-        "pprryyy",
-        "ypprrry",
-        "yyyyyyy",
+        "pppppppp",
+        "oobbbbbp",
+        "gobbbbbp",
+        "gobbbbbp",
+        "ggwwwwbb",
+        "rgwywwww",
+        "rggyrrdr",
+        "rrrrrrrr"
     )
     val field = decodeField(encodedField)
     printField(field)
