@@ -3,6 +3,7 @@ package com.dpforge.easyraster
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
+import kotlin.random.Random
 
 private val ANSI_BG_COLOR = mapOf(
     Color.PURPLE to "\u001B[45m",
@@ -19,16 +20,23 @@ private val ANSI_BG_COLOR = mapOf(
 private val ANSI_RESET = "\u001B[0m";
 private val ANSI_COLOR_WHITE = "\u001B[97m";
 
-fun main() {
+fun main(args: Array<String>) {
+    val mode = args.getOrNull(0) ?: "solve"
+    when (mode) {
+        "solve" -> mainSolve()
+        "play" -> mainPlay()
+    }
+}
+
+private fun mainSolve() {
     val encodedField = listOf(
-        "pppppppp",
-        "oobbbbbp",
-        "gobbbbbp",
-        "gobbbbbp",
-        "ggwwwwbb",
-        "rgwywwww",
-        "rggyrrdr",
-        "rrrrrrrr"
+        "ppwwvvv",
+        "ppwwbvv",
+        "rgywwvv",
+        "rgywwwv",
+        "rgyyyww",
+        "rryyyyw",
+        "rrrrrrr"
     )
     val field = decodeField(encodedField)
     printField(field)
@@ -43,6 +51,24 @@ fun main() {
             println()
         }
     ).solveField(field)
+}
+
+private fun mainPlay() {
+    var seed: Long
+    var field: Field
+    var solutions: List<Set<Position>>
+    do {
+        seed = System.nanoTime()
+        field = Generator(Random(seed)).generate(8)
+        solutions = SolutionFinder().findAllSolutions(field)
+    } while (solutions.size != 1)
+    try {
+        Solver().solveField(field)
+    } catch (e: Exception) {
+        println("Probably field is not solvable: $e")
+    }
+    println("Seed: $seed, size: ${field.size}")
+    GameUI.show(field, solutions.first())
 }
 
 fun printField(field: Field) {

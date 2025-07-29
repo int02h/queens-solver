@@ -62,13 +62,13 @@ object ClashOtherRegionStep : SolutionStep {
             for (pos in region) {
                 val copy = ctx.copy()
                 copy.putQueen(pos)
-                val singleCellRegions = copy.colorRegions.values.filter { it.size == 1 }.map { it.first() }
+                val singleCellRegions = copy.colorRegions.values.toList()
                 for ((r1, r2) in singleCellRegions.allUnorderedPairs()) {
-                    if (r1.col == r2.col) {
+                    if ((r1.map { it.col } + r2.map { it.col }).toSet().size == 1) {
                         ctx.removePosition(pos)
                         return
                     }
-                    if (r1.row == r2.row) {
+                    if ((r1.map { it.row } + r2.map { it.row }).toSet().size == 1) {
                         ctx.removePosition(pos)
                         return
                     }
