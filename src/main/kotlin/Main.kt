@@ -30,13 +30,14 @@ fun main(args: Array<String>) {
 
 private fun mainSolve() {
     val encodedField = listOf(
-        "ppwwvvv",
-        "ppwwbvv",
-        "rgywwvv",
-        "rgywwwv",
-        "rgyyyww",
-        "rryyyyw",
-        "rrrrrrr"
+        "ppppobbb",
+        "ppppobbb",
+        "ppppobbb",
+        "ppppoggg",
+        "wwwppppp",
+        "rryppppp",
+        "rryppppd",
+        "rryppppp",
     )
     val field = decodeField(encodedField)
     printField(field)
@@ -59,7 +60,7 @@ private fun mainPlay() {
     var solutions: List<Set<Position>>
     do {
         seed = System.nanoTime()
-        field = Generator(Random(seed)).generate(8)
+        field = Generator(Random(seed)).generate(9)
         solutions = SolutionFinder().findAllSolutions(field)
     } while (solutions.size != 1)
     try {

@@ -6,6 +6,8 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JFrame
 import javax.swing.JPanel
+import kotlin.collections.set
+import kotlin.system.exitProcess
 import java.awt.Color as AWTColor
 
 class GameUI(
@@ -14,6 +16,8 @@ class GameUI(
 ) : JPanel() {
 
     private val cells = Array(field.size) { Array(field.size) { CellState.EMPTY } }
+    private var isSolved = false
+    private val queenAutoCrosses = mutableMapOf<Position, Set<Position>>()
 
     init {
         preferredSize = Dimension(field.size * CELL_SIZE, field.size * CELL_SIZE)
@@ -25,6 +29,9 @@ class GameUI(
             private var lastCol = -1
 
             override fun mousePressed(e: MouseEvent) {
+                if (isSolved) {
+                    exitProcess(0)
+                }
                 pressRow = e.y / CELL_SIZE
                 lastRow = pressRow
                 pressCol = e.x / CELL_SIZE
@@ -32,8 +39,14 @@ class GameUI(
 
                 cells[pressRow][pressCol] = when (cells[pressRow][pressCol]) {
                     CellState.EMPTY -> CellState.CROSSED
-                    CellState.CROSSED -> CellState.QUEEN
-                    CellState.QUEEN -> CellState.EMPTY
+                    CellState.CROSSED -> {
+                        putCrossesForQueen(pressRow, pressCol)
+                        CellState.QUEEN
+                    }
+                    CellState.QUEEN -> {
+                        removeCrossesForQueen(pressRow, pressCol)
+                        CellState.EMPTY
+                    }
                 }
                 checkSolution()
                 repaint()
@@ -71,6 +84,25 @@ class GameUI(
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
 
+        if (isSolved) {
+            g.color = AWTColor.WHITE
+            g.fillRect(0, 0, width, height)
+            for (row in 0 until field.size) {
+                for (col in 0 until field.size) {
+                    if (cells[row][col] == CellState.QUEEN) {
+                        g.color = AWTColor.GREEN
+                        g.fillOval(
+                            col * CELL_SIZE + CELL_SIZE / 4,
+                            row * CELL_SIZE + CELL_SIZE / 4,
+                            CELL_SIZE / 2,
+                            CELL_SIZE / 2
+                        )
+                    }
+                }
+            }
+            return
+        }
+
         // draw cell backgrounds
         field.colorRegions.forEach { (color, positions) ->
             positions.forEach { p ->
@@ -86,12 +118,27 @@ class GameUI(
                     CellState.EMPTY -> Unit
                     CellState.CROSSED -> {
                         g.color = AWTColor.BLACK
-                        g.drawLine(col * CELL_SIZE, row * CELL_SIZE, (col + 1) * CELL_SIZE, (row + 1) * CELL_SIZE)
-                        g.drawLine((col + 1) * CELL_SIZE, row * CELL_SIZE, col * CELL_SIZE, (row + 1) * CELL_SIZE)
+                        g.drawLine(
+                            col * CELL_SIZE + CELL_SIZE / 4,
+                            row * CELL_SIZE + CELL_SIZE / 4,
+                            (col + 1) * CELL_SIZE - CELL_SIZE / 4,
+                            (row + 1) * CELL_SIZE - CELL_SIZE / 4
+                        )
+                        g.drawLine(
+                            (col + 1) * CELL_SIZE - CELL_SIZE / 4,
+                            row * CELL_SIZE + CELL_SIZE / 4,
+                            col * CELL_SIZE + CELL_SIZE / 4,
+                            (row + 1) * CELL_SIZE - CELL_SIZE / 4
+                        )
                     }
                     CellState.QUEEN -> {
                         g.color = AWTColor.WHITE
-                        g.fillOval(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+                        g.fillOval(
+                            col * CELL_SIZE + CELL_SIZE / 4,
+                            row * CELL_SIZE + CELL_SIZE / 4,
+                            CELL_SIZE / 2,
+                            CELL_SIZE / 2
+                        )
                     }
                 }
             }
@@ -130,11 +177,52 @@ class GameUI(
         }
         if (actual == solution) {
             println("Solved!")
+            isSolved = true
+            repaint()
         }
     }
 
+    private fun putCrossesForQueen(queenRow: Int, queenCol: Int) {
+        @Suppress("KotlinConstantConditions")
+        if (!IS_AUTO_CROSS_ENABLED) {
+            return
+        }
+        val crosses = mutableSetOf<Position>()
+        fun putCrossIfEmpty(row: Int, col: Int) {
+            if (cells.getOrNull(row)?.getOrNull(col) == CellState.EMPTY) {
+                cells[row][col] = CellState.CROSSED
+                crosses += Position(row, col)
+            }
+        }
+
+        for (col in 0 until queenCol) putCrossIfEmpty(queenRow, col)
+        for (col in (queenCol + 1) until field.size) putCrossIfEmpty(queenRow, col)
+        for (row in 0 until queenRow) putCrossIfEmpty(row, queenCol)
+        for (row in (queenRow) until field.size) putCrossIfEmpty(row, queenCol)
+        putCrossIfEmpty(queenRow - 1, queenCol - 1)
+        putCrossIfEmpty(queenRow + 1, queenCol - 1)
+        putCrossIfEmpty(queenRow - 1, queenCol + 1)
+        putCrossIfEmpty(queenRow + 1, queenCol + 1)
+        repaint()
+
+        queenAutoCrosses[Position(queenRow, queenCol)] = crosses
+    }
+
+    private fun removeCrossesForQueen(queenRow: Int, queenCol: Int) {
+        @Suppress("KotlinConstantConditions")
+        if (!IS_AUTO_CROSS_ENABLED) {
+            return
+        }
+        val crosses = queenAutoCrosses.getValue(Position(queenRow, queenCol))
+        crosses.forEach { p ->
+            cells[p.row][p.col] = CellState.EMPTY
+        }
+        queenAutoCrosses.remove(Position(queenRow, queenCol))
+    }
+
     companion object {
-        private const val CELL_SIZE = 64
+        private const val CELL_SIZE = 48
+        private const val IS_AUTO_CROSS_ENABLED = true
 
         fun show(field: Field, solution: Set<Position>) {
             val frame = JFrame()
