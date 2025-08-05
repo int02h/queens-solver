@@ -17,8 +17,8 @@ private val ANSI_BG_COLOR = mapOf(
     Color.DARK_GRAY to "\u001B[0;100m", // high intensity black
 )
 
-private val ANSI_RESET = "\u001B[0m";
-private val ANSI_COLOR_WHITE = "\u001B[97m";
+private val ANSI_RESET = "\u001B[0m"
+private val ANSI_COLOR_WHITE = "\u001B[97m"
 
 fun main(args: Array<String>) {
     val mode = args.getOrNull(0) ?: "solve"
@@ -58,11 +58,15 @@ private fun mainPlay() {
     var seed: Long
     var field: Field
     var solutions: List<Set<Position>>
+    val startNs = System.nanoTime()
+    val seedRandom = Random(System.nanoTime())
+    println("Start solution generation")
     do {
-        seed = System.nanoTime()
+        seed = seedRandom.nextLong(1, Long.MAX_VALUE)
         field = Generator(Random(seed)).generate(9)
         solutions = SolutionFinder().findAllSolutions(field)
     } while (solutions.size != 1)
+    println("Solution generated in ${(System.nanoTime() - startNs) / 1_000_000} ms")
     try {
         Solver().solveField(field)
     } catch (e: Exception) {
