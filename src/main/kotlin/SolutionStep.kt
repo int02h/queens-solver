@@ -8,10 +8,6 @@ interface SolutionStep {
     fun doStep(ctx: SolutionContext)
 }
 
-interface OneShotSolutionStep {
-    fun doOnce(ctx: SolutionContext)
-}
-
 object SingleCellRegionStep : SolutionStep {
 
     override fun doStep(ctx: SolutionContext) {
@@ -116,16 +112,17 @@ object CompleteColumnStep : SolutionStep {
     }
 }
 
-object SameColorColumn : OneShotSolutionStep {
-    override fun doOnce(ctx: SolutionContext) {
+object SameColorColumn : SolutionStep {
+    override fun doStep(ctx: SolutionContext) {
         for (col in 0 until ctx.fieldSize) {
             val freeCells = getColumnFreeCells(ctx, col)
             val isSameColor = freeCells.toSet().size == 1
-            if (isSameColor && freeCells.size == ctx.fieldSize) {
+            if (isSameColor) {
                 val color = freeCells.first()
                 ctx.colorRegions.getValue(color)
                     .filter { it.col != col }
                     .forEach { ctx.removePosition(it) }
+                break
             }
         }
     }

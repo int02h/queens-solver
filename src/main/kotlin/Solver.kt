@@ -4,9 +4,6 @@ class Solver(
     private val onStepListener: (Field, SolutionContext) -> Unit = { _, _ -> }
 ) {
     fun solveField(field: Field): Set<Position> {
-        val oneShotSteps = listOf(
-            SameColorColumn
-        )
         val steps = listOf(
             SingleCellRegionStep,
             HorizontalRegionStep,
@@ -14,16 +11,9 @@ class Solver(
             ClashOtherRegionStep,
             CompleteRowStep,
             CompleteColumnStep,
+            SameColorColumn,
         )
         val ctx = SolutionContext(field)
-
-        for (step in oneShotSteps) {
-            ctx.hasChanges = false
-            step.doOnce(ctx)
-            if (ctx.hasChanges) {
-                onStepListener(field, ctx)
-            }
-        }
 
         while (ctx.queens.size < field.size) {
             for (step in steps) {
@@ -36,6 +26,7 @@ class Solver(
             }
 
             if (!ctx.hasChanges) {
+                SameColorColumn.doStep(ctx)
                 error("I got stuck")
             }
         }
