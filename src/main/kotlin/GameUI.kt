@@ -198,7 +198,7 @@ class GameUI(
         for (col in 0 until queenCol) putCrossIfEmpty(queenRow, col)
         for (col in (queenCol + 1) until field.size) putCrossIfEmpty(queenRow, col)
         for (row in 0 until queenRow) putCrossIfEmpty(row, queenCol)
-        for (row in (queenRow) until field.size) putCrossIfEmpty(row, queenCol)
+        for (row in (queenRow + 1) until field.size) putCrossIfEmpty(row, queenCol)
         putCrossIfEmpty(queenRow - 1, queenCol - 1)
         putCrossIfEmpty(queenRow + 1, queenCol - 1)
         putCrossIfEmpty(queenRow - 1, queenCol + 1)
