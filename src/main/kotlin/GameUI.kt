@@ -157,7 +157,7 @@ class GameUI(
             Color.PURPLE -> AWTColor(128, 0, 128)
             Color.VIOLET -> AWTColor(238, 130, 238)
             Color.ORANGE -> AWTColor.ORANGE
-            Color.BLUE -> AWTColor.BLUE
+            Color.BLUE -> AWTColor(0, 128, 255)
             Color.GREEN -> AWTColor.GREEN
             Color.WHITE -> AWTColor.LIGHT_GRAY
             Color.RED -> AWTColor.RED
