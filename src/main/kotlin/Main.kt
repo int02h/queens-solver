@@ -128,6 +128,19 @@ fun decodeField(encodedField: List<String>): Field {
     )
 }
 
+fun encodeField(field: Field): List<String> {
+    val encoded = mutableListOf<String>()
+    for (row in 0 until field.size) {
+        var rowValue = ""
+        for (col in 0 until field.size) {
+            val color = field.colorRegions.getColor(Position(row, col)) ?: error("Bad field")
+            rowValue += color.value
+        }
+        encoded += rowValue
+    }
+    return encoded
+}
+
 private fun Map<Color, Set<Position>>.getColor(pos: Position): Color? {
     for ((color, posSet) in this) {
         if (posSet.contains(pos)) {

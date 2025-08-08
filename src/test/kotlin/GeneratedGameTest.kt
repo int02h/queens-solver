@@ -1,16 +1,22 @@
-import com.dpforge.easyraster.Generator
 import com.dpforge.easyraster.Position
 import com.dpforge.easyraster.SolutionFinder
 import com.dpforge.easyraster.Solver
 import com.dpforge.easyraster.decodeField
-import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class GeneratedGameTest {
     @Test
-    fun `seed 317000030320750, size 7`() {
-        val queens = solve(317000030320750, 7)
+    fun test1() {
+        val queens = solve(
+            "rwwwyyg",
+            "rrwwyyg",
+            "vvwbppg",
+            "vvwbbpg",
+            "vvwbbbb",
+            "vvwbbbb",
+            "vvvbbbb"
+        )
         assertEquals(
             setOf(
                 Position(row = 0, col = 5),
@@ -26,8 +32,18 @@ class GeneratedGameTest {
     }
 
     @Test
-    fun `seed 1161055006196476477, size 9`() {
-        val queens = solve(1161055006196476477, 9)
+    fun test2() {
+        val queens = solve(
+            "bbboooogg",
+            "bbbyppoog",
+            "bbdypvvrr",
+            "wbdyyvvrr",
+            "wbdyyvvrr",
+            "wwddyvvrr",
+            "wwwdyvvvv",
+            "wwwdyyyvv",
+            "wwwdddyyv"
+        )
         assertEquals(
             setOf(
                 Position(row = 0, col = 3),
@@ -44,8 +60,8 @@ class GeneratedGameTest {
         )
     }
 
-    private fun solve(seed: Long, fieldSize: Int): Set<Position> {
-        val field = Generator(Random(seed)).generate(fieldSize)
+    private fun solve(vararg encodedField: String): Set<Position> {
+        val field = decodeField(encodedField.toList())
         val allSolutions = SolutionFinder().findAllSolutions(field)
         assertEquals(1, allSolutions.size)
 
