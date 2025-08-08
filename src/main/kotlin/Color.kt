@@ -9,7 +9,8 @@ enum class Color(val value: Char) {
     WHITE('w'),
     RED('r'),
     YELLOW('y'),
-    DARK_GRAY('d');
+    DARK_GRAY('d'),
+    LIGHT_BLUE('l');
 
     companion object {
         fun decode(value: Char): Color = entries.find { it.value == value } ?: error("Unknown color: $value")

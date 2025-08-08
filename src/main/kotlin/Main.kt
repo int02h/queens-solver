@@ -15,6 +15,7 @@ private val ANSI_BG_COLOR = mapOf(
     Color.RED to "\u001B[41m",
     Color.YELLOW to "\u001B[43m",
     Color.DARK_GRAY to "\u001B[0;100m", // high intensity black
+    Color.LIGHT_BLUE to "\u001B[0;104m", // high intensity blue
 )
 
 private val ANSI_RESET = "\u001B[0m"

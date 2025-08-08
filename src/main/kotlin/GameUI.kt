@@ -163,6 +163,7 @@ class GameUI(
             Color.RED -> AWTColor.RED
             Color.YELLOW -> AWTColor.YELLOW
             Color.DARK_GRAY -> AWTColor.DARK_GRAY
+            Color.LIGHT_BLUE -> AWTColor(0x87, 0xce, 0xfa)
         }
     }
 
