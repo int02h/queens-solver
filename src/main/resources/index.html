@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Solve queens</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0f0f0;
+        }
+
+        #grid {
+            display: grid;
+            gap: 0px;
+            background: #444;
+            user-select: none;
+            border: 1px solid #000;
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none;    /* Firefox */
+            -ms-user-select: none;     /* IE10+ */
+        }
+
+        .cell {
+            background: #fff;
+            border: 1px solid #000;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center; /* horizontal */
+            align-items: center;     /* vertical */
+        }
+    </style>
+    <script src="game.js"></script>
+</head>
+<body>
+<div id="grid"></div>
+
+<script language="JavaScript">
+    // Example: Create a 7x7 grid
+    createGrid(7, 7, 48);
+
+    // Optional: Make it responsive to screen resizing
+    window.addEventListener('resize', () => {
+        createGrid(7, 7, 48); // Adjust values as needed
+    });
+</script>
+</body>
+</html>
