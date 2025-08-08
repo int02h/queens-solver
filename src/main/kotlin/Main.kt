@@ -1,9 +1,8 @@
 package com.dpforge.easyraster
 
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.iterator
 import kotlin.random.Random
+import kotlin.time.DurationUnit
+import kotlin.time.measureTime
 
 private val ANSI_BG_COLOR = mapOf(
     Color.PURPLE to "\u001B[45m",
@@ -18,8 +17,8 @@ private val ANSI_BG_COLOR = mapOf(
     Color.LIGHT_BLUE to "\u001B[0;104m", // high intensity blue
 )
 
-private val ANSI_RESET = "\u001B[0m"
-private val ANSI_COLOR_WHITE = "\u001B[97m"
+private const val ANSI_RESET = "\u001B[0m"
+private const val ANSI_COLOR_WHITE = "\u001B[97m"
 
 fun main(args: Array<String>) {
     val mode = args.getOrNull(0) ?: "solve"
@@ -58,22 +57,43 @@ private fun mainSolve() {
 private fun mainPlay() {
     var seed: Long
     var field: Field
-    var solutions: List<Set<Position>>
+    var solutions: List<Set<Position>> = emptyList()
     val startNs = System.nanoTime()
     val seedRandom = Random(System.nanoTime())
+    val solutionFinder = SolutionFinder(exitEarlier = true)
+    var generationTotalTime = 0L
+    var solutionTotalTime = 0L
+    var invalidFieldCount = 0
     println("Start solution generation")
     do {
         seed = seedRandom.nextLong(1, Long.MAX_VALUE)
-        field = Generator(Random(seed)).generate(9)
-        solutions = SolutionFinder().findAllSolutions(field)
+        generationTotalTime += measureTime {
+            field = Generator(Random(seed)).generate(10)
+        }.toLong(DurationUnit.NANOSECONDS)
+
+        if (!isValidField(field)) {
+            invalidFieldCount++
+            continue
+        }
+
+        solutionTotalTime += measureTime {
+            solutions = solutionFinder.findAllSolutions(field)
+        }.toLong(DurationUnit.NANOSECONDS)
     } while (solutions.size != 1)
-    println("Solution generated in ${(System.nanoTime() - startNs) / 1_000_000} ms")
+
+    println("Total time      : ${(System.nanoTime() - startNs) / 1_000_000} ms")
+    println("Generation time : ${(generationTotalTime) / 1_000_000} ms")
+    println("Solution time   : ${(solutionTotalTime) / 1_000_000} ms")
+    println()
+    println("Invalid field count: $invalidFieldCount")
+
     try {
         Solver().solveField(field)
     } catch (e: Exception) {
         println("Probably field is not solvable: $e")
     }
-    println("Seed: $seed, size: ${field.size}")
+    println("Field:")
+    println(encodeField(field).joinToString(separator = "|"))
     GameUI.show(field, solutions.first())
 }
 
@@ -142,6 +162,53 @@ fun encodeField(field: Field): List<String> {
     return encoded
 }
 
+fun isValidField(field: Field): Boolean {
+    if (field.colorRegions.size != field.size) {
+        return false
+    }
+
+    for ((s1, s2) in field.colorRegions.values.toList().allUnorderedPairs()) {
+        val rows1 = s1.map { it.row }.toSet()
+        val rows2 = s2.map { it.row }.toSet()
+        if (rows1.size == 1 && rows2.size == 1 && rows1.first() == rows2.first()) {
+            return false
+        }
+
+        val cols1 = s1.map { it.col }.toSet()
+        val cols2 = s2.map { it.col }.toSet()
+        if (cols1.size == 1 && cols2.size == 1 && cols1.first() == cols2.first()) {
+            return false
+        }
+    }
+
+    val fullLine = mutableSetOf<Color>()
+    for (row in 0 until field.size) {
+        val rowColors = field.colorRegions.getRowColors(row)
+        if (rowColors.size == 1) {
+            if (!fullLine.add(rowColors.first())) {
+                return false
+            }
+        }
+    }
+
+    fullLine.clear()
+    for (col in 0 until field.size) {
+        val col = field.colorRegions.getColColors(col)
+        if (col.size == 1) {
+            if (!fullLine.add(col.first())) {
+                return false
+            }
+        }
+    }
+
+    return try {
+        Solver().solveField(field)
+        true
+    } catch (_: Exception) {
+        false
+    }
+}
+
 private fun Map<Color, Set<Position>>.getColor(pos: Position): Color? {
     for ((color, posSet) in this) {
         if (posSet.contains(pos)) {
@@ -149,5 +216,29 @@ private fun Map<Color, Set<Position>>.getColor(pos: Position): Color? {
         }
     }
     return null
+}
+
+private fun Map<Color, Set<Position>>.getRowColors(row: Int): Set<Color> {
+    val result = mutableSetOf<Color>()
+    for ((color, posSet) in this) {
+        for (pos in posSet) {
+            if (pos.row == row) {
+                result += color
+            }
+        }
+    }
+    return result
+}
+
+private fun Map<Color, Set<Position>>.getColColors(col: Int): Set<Color> {
+    val result = mutableSetOf<Color>()
+    for ((color, posSet) in this) {
+        for (pos in posSet) {
+            if (pos.col == col) {
+                result += color
+            }
+        }
+    }
+    return result
 }
 

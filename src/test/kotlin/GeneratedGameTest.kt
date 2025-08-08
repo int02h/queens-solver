@@ -2,6 +2,7 @@ import com.dpforge.easyraster.Position
 import com.dpforge.easyraster.SolutionFinder
 import com.dpforge.easyraster.Solver
 import com.dpforge.easyraster.decodeField
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -58,6 +59,29 @@ class GeneratedGameTest {
             ),
             queens
         )
+    }
+
+    @Test
+    fun `seed 6552667839227210360, size 9`() {
+        val field = decodeField(
+            listOf(
+                "yyyywwwww",
+                "yvvooowww",
+                "rpvvoowww",
+                "rpbvodwwg",
+                "rpbbbdwwg",
+                "rpbbbdwww",
+                "rrbbbbwww",
+                "rrbbbbbbb",
+                "rrrrbbbbb"
+            )
+        )
+        val allSolutions = SolutionFinder().findAllSolutions(field)
+        assertEquals(1, allSolutions.size)
+        val err = assertThrows<IllegalStateException> {
+            Solver().solveField(field)
+        }
+        assertEquals("I got stuck", err.message)
     }
 
     private fun solve(vararg encodedField: String): Set<Position> {

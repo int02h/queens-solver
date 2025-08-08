@@ -2,7 +2,9 @@ package com.dpforge.easyraster
 
 import kotlin.math.abs
 
-class SolutionFinder {
+class SolutionFinder(
+    private val exitEarlier: Boolean = false
+) {
     private lateinit var field: Field
     private val solutions = mutableListOf<List<Int>>()
 
@@ -28,6 +30,9 @@ class SolutionFinder {
             val newQueens = queens + col
             if (!shouldReject(newQueens)) {
                 backtrack(newQueens)
+                if (exitEarlier && solutions.size > 1) {
+                    break
+                }
             }
         }
     }
@@ -63,30 +68,4 @@ class SolutionFinder {
         }
         return false
     }
-
-    private fun shouldAccept(queens: List<Int>): Boolean {
-        return queens.size == field.size
-    }
-
-    private fun nextQueens(queens: List<Int>): List<Int>? {
-        if (queens.size < field.size) {
-            return queens + 0
-        }
-        val next = queens.toMutableList()
-        var q = 0
-        next[q] += 1
-        while (next[q] == field.size) {
-            if (q == field.size - 1) {
-                return null
-            }
-            next[q] = 0
-            q += 1
-            next[q] += 1
-            if (q == field.size - 1) {
-                Unit
-            }
-        }
-        return next
-    }
-
 }
