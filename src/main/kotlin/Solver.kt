@@ -6,12 +6,8 @@ class Solver(
     fun solveField(field: Field): Set<Position> {
         val steps = listOf(
             SingleCellRegionStep,
-            HorizontalRegionStep,
             BlockOtherRegionStep,
             ClashOtherRegionStep,
-            CompleteRowStep,
-            CompleteColumnStep,
-            SameColorColumn,
         )
         val ctx = SolutionContext(field)
 
@@ -26,7 +22,6 @@ class Solver(
             }
 
             if (!ctx.hasChanges) {
-                SameColorColumn.doStep(ctx)
                 error("I got stuck")
             }
         }

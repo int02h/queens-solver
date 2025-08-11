@@ -563,6 +563,91 @@ class RealGameTest {
         )
     }
 
+    @Test
+    fun `2025-Aug-09`() {
+        val queens = solve(
+            "rrrpppppp",
+            "rrrvvvppp",
+            "rrrrvpppp",
+            "rgrrvppbd",
+            "rgggobbbd",
+            "rgwwyddbd",
+            "rrwwydddd",
+            "rrwyyyddd",
+            "rrwwwwwww"
+        )
+        assertEquals(
+            setOf(
+                Position(row = 0, col = 6),
+                Position(row = 1, col = 3),
+                Position(row = 2, col = 0),
+                Position(row = 3, col = 7),
+                Position(row = 4, col = 4),
+                Position(row = 5, col = 1),
+                Position(row = 6, col = 8),
+                Position(row = 7, col = 5),
+                Position(row = 8, col = 2),
+            ),
+            queens
+        )
+    }
+
+    @Test
+    fun `2025-Aug-10`() {
+        val queens = solve(
+            "dddddddww",
+            "dddpppyyw",
+            "ddpppppyw",
+            "ddpppppyy",
+            "doppoppoy",
+            "goooooooy",
+            "grrororrv",
+            "gbrrrrrvv",
+            "gbbbbbvvv",
+        )
+        assertEquals(
+            setOf(
+                Position(row = 0, col = 8),
+                Position(row = 1, col = 6),
+                Position(row = 2, col = 3),
+                Position(row = 3, col = 1),
+                Position(row = 4, col = 4),
+                Position(row = 5, col = 0),
+                Position(row = 6, col = 2),
+                Position(row = 7, col = 7),
+                Position(row = 8, col = 5),
+            ),
+            queens
+        )
+    }
+
+    @Test
+    fun `2025-Aug-11`() {
+        val queens = solve(
+            "pobogowo",
+            "oobogowo",
+            "oooogowo",
+            "oooooowo",
+            "roooyooo",
+            "rrroyooo",
+            "roooyydd",
+            "rroyyddd"
+        )
+        assertEquals(
+            setOf(
+                Position(row = 0, col = 0),
+                Position(row = 1, col = 2),
+                Position(row = 2, col = 4),
+                Position(row = 3, col = 6),
+                Position(row = 4, col = 3),
+                Position(row = 5, col = 1),
+                Position(row = 6, col = 5),
+                Position(row = 7, col = 7),
+            ),
+            queens
+        )
+    }
+
     private fun solve(vararg encodedField: String): Set<Position> {
         val field = decodeField(encodedField.toList())
         val allSolutions = SolutionFinder().findAllSolutions(field)

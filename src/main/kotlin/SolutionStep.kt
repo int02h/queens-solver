@@ -11,28 +11,10 @@ interface SolutionStep {
 object SingleCellRegionStep : SolutionStep {
 
     override fun doStep(ctx: SolutionContext) {
-        val singleCellRegions = ctx.colorRegions.filter { it.value.size == 1 }
+        val singleCellRegions = ctx.colorRegions.filter { it.value.size == 1 && !ctx.queens.contains(it.value.first()) }
         singleCellRegions.forEach { color, set ->
-            ctx.removeRegion(color)
             ctx.putQueen(set.first())
         }
-    }
-
-}
-
-object HorizontalRegionStep : SolutionStep {
-    override fun doStep(ctx: SolutionContext) {
-        ctx.colorRegions.values
-            .filter { set ->
-                set.size > 1 && set.map { pos -> pos.row }.toSet().size == 1
-            }
-            .forEach { horizontalRegion ->
-                val startCol = horizontalRegion.minOf { it.col }
-                val endCol = horizontalRegion.maxOf { it.col }
-                val row = horizontalRegion.first().row
-                for (col in 0 until startCol) ctx.removePosition(Position(row, col))
-                for (col in (endCol + 1) until ctx.fieldSize) ctx.removePosition(Position(row, col))
-            }
     }
 
 }
@@ -47,11 +29,62 @@ object BlockOtherRegionStep : SolutionStep {
                     ctx.removePosition(pos)
                     return
                 }
+                if (!checkRegions(copy)) {
+                    ctx.removePosition(pos)
+                    return
+                }
             }
+        }
+    }
+
+    private fun checkRegions(ctx: SolutionContext): Boolean {
+        val connections = mutableSetOf<Color>()
+        for (color in ctx.colorRegions.keys) {
+            connections.clear()
+            buildRegionRowConnections(ctx, color, connections)
+            val rows = connections.flatMap { color -> ctx.colorRegions.getValue(color) }.map { it.row }.toSet()
+            if (rows.size < connections.size) {
+                return false
+            }
+
+            connections.clear()
+            buildRegionColConnections(ctx, color, connections)
+            val cols = connections.flatMap { color -> ctx.colorRegions.getValue(color) }.map { it.col }.toSet()
+            if (cols.size < connections.size) {
+                return false
+            }
+        }
+        return true
+    }
+
+    private fun buildRegionRowConnections(ctx: SolutionContext, color: Color, connections: MutableSet<Color>) {
+        if (connections.contains(color)) {
+            return
+        }
+        connections += color
+        val rows = ctx.colorRegions.getValue(color).map { it.row }.toSet()
+        val affectedRegions = ctx.getRegionsOnRows(rows)
+        connections += affectedRegions
+        affectedRegions.forEach { ar ->
+            buildRegionRowConnections(ctx, ar, connections)
+        }
+    }
+
+    private fun buildRegionColConnections(ctx: SolutionContext, color: Color, connections: MutableSet<Color>) {
+        if (connections.contains(color)) {
+            return
+        }
+        connections += color
+        val cols = ctx.colorRegions.getValue(color).map { it.col }.toSet()
+        val affectedRegions = ctx.getRegionsOnCols(cols)
+        connections += affectedRegions
+        affectedRegions.forEach { ar ->
+            buildRegionColConnections(ctx, ar, connections)
         }
     }
 }
 
+// Check if it can ve replaced by BlockOtherRegionStep
 object ClashOtherRegionStep : SolutionStep {
     override fun doStep(ctx: SolutionContext) {
         for ((_, region) in ctx.colorRegions) {
@@ -72,66 +105,4 @@ object ClashOtherRegionStep : SolutionStep {
             }
         }
     }
-}
-
-object CompleteRowStep : SolutionStep {
-    override fun doStep(ctx: SolutionContext) {
-        for (row in 0 until ctx.fieldSize) {
-            val freeCells = getRowFreeCells(ctx, row)
-            if (freeCells.size == 1) {
-                ctx.putQueen(freeCells.first())
-                break
-            }
-        }
-    }
-
-    private fun getRowFreeCells(ctx: SolutionContext, row: Int): List<Position> {
-        return (0 until ctx.fieldSize).mapNotNull { col ->
-            val pos = Position(row, col)
-            if (ctx.colorRegions.any { it.value.contains(pos) }) pos else null
-        }
-    }
-}
-
-object CompleteColumnStep : SolutionStep {
-    override fun doStep(ctx: SolutionContext) {
-        for (col in 0 until ctx.fieldSize) {
-            val freeCells = getColumnFreeCells(ctx, col)
-            if (freeCells.size == 1) {
-                ctx.putQueen(freeCells.first())
-                break
-            }
-        }
-    }
-
-    private fun getColumnFreeCells(ctx: SolutionContext, col: Int): List<Position> {
-        return (0 until ctx.fieldSize).mapNotNull { row ->
-            val pos = Position(row, col)
-            if (ctx.colorRegions.any { it.value.contains(pos) }) pos else null
-        }
-    }
-}
-
-object SameColorColumn : SolutionStep {
-    override fun doStep(ctx: SolutionContext) {
-        for (col in 0 until ctx.fieldSize) {
-            val freeCells = getColumnFreeCells(ctx, col)
-            val isSameColor = freeCells.toSet().size == 1
-            if (isSameColor) {
-                val color = freeCells.first()
-                ctx.colorRegions.getValue(color)
-                    .filter { it.col != col }
-                    .forEach { ctx.removePosition(it) }
-                break
-            }
-        }
-    }
-
-    private fun getColumnFreeCells(ctx: SolutionContext, col: Int): List<Color> {
-        return (0 until ctx.fieldSize).mapNotNull { row ->
-            val pos = Position(row, col)
-            ctx.colorRegions.filterValues { it.contains(pos) }.keys.firstOrNull()
-        }
-    }
-
 }

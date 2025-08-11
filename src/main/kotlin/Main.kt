@@ -30,14 +30,15 @@ fun main(args: Array<String>) {
 
 private fun mainSolve() {
     val encodedField = listOf(
-        "ppppobbb",
-        "ppppobbb",
-        "ppppobbb",
-        "ppppoggg",
-        "wwwppppp",
-        "rryppppp",
-        "rryppppd",
-        "rryppppp",
+        "dddddddww",
+        "dddpppyyw",
+        "ddpppppyw",
+        "ddpppppyy",
+        "doppoppoy",
+        "goooooooy",
+        "grrororrv",
+        "gbrrrrrvv",
+        "gbbbbbvvv",
     )
     val field = decodeField(encodedField)
     printField(field)

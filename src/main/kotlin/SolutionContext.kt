@@ -39,12 +39,6 @@ class SolutionContext(field: Field) {
         }
     }
 
-    fun removeRegion(color: Color) {
-        if (_colorRegions.remove(color) != null) {
-            hasChanges = true
-        }
-    }
-
     fun copy(): SolutionContext {
         val ctx = SolutionContext(
             Field(fieldSize, colorRegions)
@@ -52,6 +46,14 @@ class SolutionContext(field: Field) {
         ctx._queens += _queens
         ctx.hasChanges = hasChanges
         return ctx
+    }
+
+    fun getRegionsOnRows(rows: Set<Int>): Set<Color> {
+        return _colorRegions.filterValues { region -> region.any { pos -> rows.contains(pos.row) } }.keys.toSet()
+    }
+
+    fun getRegionsOnCols(cols: Set<Int>): Set<Color> {
+        return _colorRegions.filterValues { region -> region.any { pos -> cols.contains(pos.col) } }.keys.toSet()
     }
 }
 
