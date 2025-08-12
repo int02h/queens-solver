@@ -69,7 +69,7 @@ private fun mainPlay() {
     do {
         seed = seedRandom.nextLong(1, Long.MAX_VALUE)
         generationTotalTime += measureTime {
-            field = Generator(Random(seed)).generate(10)
+            field = Generator(Random(seed)).generateWithPatterns(10)
         }.toLong(DurationUnit.NANOSECONDS)
 
         if (!isValidField(field)) {

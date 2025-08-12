@@ -3,8 +3,8 @@ package com.dpforge.easyraster
 sealed class Pattern(private vararg val shape: String) {
 
     private val positions = mutableSetOf<Position>()
-    private val width: Int = shape.maxOf { it.length }
-    private val height: Int = shape.size
+    val width: Int = shape.maxOf { it.length }
+    val height: Int = shape.size
 
     init {
         setTransformation(Transformation.NONE)
@@ -32,8 +32,10 @@ sealed class Pattern(private vararg val shape: String) {
         return getTranslatedPositions(pos.row, pos.col).all { cells[it.row][it.col] == null }
     }
 
-    fun apply(cells: Array<Array<Color?>>, pos: Position, color: Color) {
-        getTranslatedPositions(pos.row, pos.col).forEach { cells[it.row][it.col] = color }
+    fun apply(cells: Array<Array<Color?>>, pos: Position, color: Color): Set<Position> {
+        val region = getTranslatedPositions(pos.row, pos.col)
+        region.forEach { cells[it.row][it.col] = color }
+        return region
     }
 
     private fun getTranslatedPositions(dRow: Int, dCol: Int): Set<Position> {
@@ -50,10 +52,85 @@ sealed class Pattern(private vararg val shape: String) {
         ".#.",
     )
 
+    class UShape : Pattern(
+        "#.#",
+        "#.#",
+        "###",
+    )
+
+    class Mug : Pattern(
+        "#.#",
+        "###",
+    )
+
+    class Bowl : Pattern(
+        "#..#",
+        "####",
+    )
+
     class Ladder : Pattern(
         "#..",
         "##.",
         "###",
+    )
+
+    class Square2 : Pattern(
+        "##",
+        "##",
+    )
+
+    class Square3 : Pattern(
+        "###",
+        "###",
+        "###",
+    )
+
+    class Saw : Pattern(
+        "#.#.#",
+        "#####"
+    )
+
+    class OneShape : Pattern(
+        "##",
+        ".#",
+        ".#",
+        ".#",
+        ".#",
+    )
+
+    class TwoShape : Pattern(
+        "###",
+        "..#",
+        "###",
+        "#..",
+        "###",
+    )
+
+    class ThreeShape : Pattern(
+        "###",
+        "..#",
+        "###",
+        "..#",
+        "###",
+    )
+
+    class FourShape : Pattern(
+        "#.#",
+        "#.#",
+        "###",
+        "..#",
+        "..#",
+    )
+
+    // 5-Shape is horizontally-flipped 2-Shape
+    // 6-Shape, 8-Shape, and 9-Shape have a closed area inside
+
+    class SevenShape : Pattern(
+        "###",
+        "..#",
+        "..#",
+        "..#",
+        "..#",
     )
 
     enum class Transformation {
