@@ -196,6 +196,9 @@ class GameUI(
             }
         }
 
+        val region = field.colorRegions.filterValues { it.contains(Position(queenRow, queenCol)) }.values.first()
+        region.forEach { pos -> putCrossIfEmpty(pos.row, pos.col) }
+
         for (col in 0 until queenCol) putCrossIfEmpty(queenRow, col)
         for (col in (queenCol + 1) until field.size) putCrossIfEmpty(queenRow, col)
         for (row in 0 until queenRow) putCrossIfEmpty(row, queenCol)

@@ -1,7 +1,7 @@
+import com.dpforge.easyraster.FieldCodec
 import com.dpforge.easyraster.Position
 import com.dpforge.easyraster.SolutionFinder
 import com.dpforge.easyraster.Solver
-import com.dpforge.easyraster.decodeField
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -680,7 +680,7 @@ class RealGameTest {
     }
 
     private fun solve(vararg encodedField: String): Set<Position> {
-        val field = decodeField(encodedField.toList())
+        val field = FieldCodec.decodeFromHumanText(encodedField.toList())
         val allSolutions = SolutionFinder().findAllSolutions(field)
         assertEquals(1, allSolutions.size)
 

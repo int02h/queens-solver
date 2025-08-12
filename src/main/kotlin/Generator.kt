@@ -12,24 +12,34 @@ class Generator(
         Callable { it.createInstance() }
     }
 
-    fun generateWithPatterns(fieldSize: Int, maxPatternCount: Int = fieldSize / 2): Field {
+    fun generateWithPatterns(fieldSize: Int): Field {
         val cells = Array(fieldSize) { Array<Color?>(fieldSize) { null } }
         val allColors = Color.entries.shuffled(random).subList(0, fieldSize).toMutableList()
         val colorRegions = mutableMapOf<Color, MutableSet<Position>>()
         val patternColors = mutableSetOf<Color>()
 
-        val patternCount = random.nextInt(1, maxPatternCount)
-        repeat(patternCount) {
+        var cannotApplyCount = 0
+        while (true) {
             val pattern = patternFactories.random(random).call()
             pattern.setTransformation(Pattern.Transformation.entries.random(random))
-            val pos = Position(
-                row = random.nextInt(fieldSize - pattern.width + 1),
-                col = random.nextInt(fieldSize - pattern.height + 1)
+            val freePositions = getFreePositions(
+                cells = cells,
+                maxRow = fieldSize - pattern.height,
+                maxCol = fieldSize - pattern.width
             )
+            if (freePositions.isEmpty()) {
+                break
+            }
+            val pos = freePositions.random(random)
             if (pattern.canApply(cells, pos)) {
                 val color = allColors.removeAt(random.nextInt(allColors.size))
                 patternColors += color
                 colorRegions[color] = pattern.apply(cells, pos, color).toMutableSet()
+            } else {
+                cannotApplyCount++
+                if (cannotApplyCount == 10) {
+                    break
+                }
             }
         }
 
@@ -59,6 +69,22 @@ class Generator(
             size = fieldSize,
             colorRegions = colorRegions
         )
+    }
+
+    private fun getFreePositions(
+        cells: Array<Array<Color?>>,
+        maxRow: Int,
+        maxCol: Int
+    ): Set<Position> {
+        val result = mutableSetOf<Position>()
+        for (row in 0..maxRow) {
+            for (col in 0..maxCol) {
+                if (cells[row][col] == null) {
+                    result += Position(row, col)
+                }
+            }
+        }
+        return result
     }
 
 }

@@ -3,8 +3,13 @@ package com.dpforge.easyraster
 sealed class Pattern(private vararg val shape: String) {
 
     private val positions = mutableSetOf<Position>()
-    val width: Int = shape.maxOf { it.length }
-    val height: Int = shape.size
+    private val shapeWidth: Int = shape.maxOf { it.length }
+    private val shapeHeight: Int = shape.size
+
+    var width: Int = shapeWidth
+        private set
+    var height: Int = shapeHeight
+        private set
 
     init {
         setTransformation(Transformation.NONE)
@@ -15,10 +20,12 @@ sealed class Pattern(private vararg val shape: String) {
         shape.forEachIndexed { row, rowValue ->
             rowValue.forEachIndexed { col, cell ->
                 if (cell == '#') {
-                    positions += transformation.transform(width, height, Position(row, col))
+                    positions += transformation.transform(shapeWidth, shapeHeight, Position(row, col))
                 }
             }
         }
+        width = positions.maxOf { it.col } + 1
+        height = positions.maxOf { it.row } + 1
     }
 
     fun canApply(cells: Array<Array<Color?>>, pos: Position): Boolean {

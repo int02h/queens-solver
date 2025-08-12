@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class PatternTest {
@@ -41,11 +42,12 @@ class PatternTest {
 
     @Test
     fun apply() {
-        Pattern.Ladder().apply(cells, Position(1, 2), blue)
+        val pattern = Pattern.Bowl()
+        pattern.apply(cells, Position(1, 2), blue)
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[0])
-        assertContentEquals(arrayOf(null, null, blue, null, null, null, null), cells[1])
-        assertContentEquals(arrayOf(null, null, blue, blue, null, null, null), cells[2])
-        assertContentEquals(arrayOf(null, null, blue, blue, blue, null, null), cells[3])
+        assertContentEquals(arrayOf(null, null, blue, null, null, blue, null), cells[1])
+        assertContentEquals(arrayOf(null, null, blue, blue, blue, blue, null), cells[2])
+        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[3])
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[4])
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[5])
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[6])
@@ -53,13 +55,13 @@ class PatternTest {
 
     @Test
     fun `setTransformation - FLIP_VERTICALLY`() {
-        val pattern = Pattern.Ladder()
+        val pattern = Pattern.Bowl()
         pattern.setTransformation(Pattern.Transformation.FLIP_VERTICALLY)
         pattern.apply(cells, Position(1, 2), blue)
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[0])
-        assertContentEquals(arrayOf(null, null, blue, blue, blue, null, null), cells[1])
-        assertContentEquals(arrayOf(null, null, blue, blue, null, null, null), cells[2])
-        assertContentEquals(arrayOf(null, null, blue, null, null, null, null), cells[3])
+        assertContentEquals(arrayOf(null, null, blue, blue, blue, blue, null), cells[1])
+        assertContentEquals(arrayOf(null, null, blue, null, null, blue, null), cells[2])
+        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[3])
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[4])
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[5])
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[6])
@@ -81,28 +83,28 @@ class PatternTest {
 
     @Test
     fun `setTransformation - ROTATE_90_CW`() {
-        val pattern = Pattern.Ladder()
+        val pattern = Pattern.Bowl()
         pattern.setTransformation(Pattern.Transformation.ROTATE_90_CW)
         pattern.apply(cells, Position(1, 2), blue)
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[0])
-        assertContentEquals(arrayOf(null, null, blue, blue, blue, null, null), cells[1])
-        assertContentEquals(arrayOf(null, null, blue, blue, null, null, null), cells[2])
+        assertContentEquals(arrayOf(null, null, blue, blue, null, null, null), cells[1])
+        assertContentEquals(arrayOf(null, null, blue, null, null, null, null), cells[2])
         assertContentEquals(arrayOf(null, null, blue, null, null, null, null), cells[3])
-        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[4])
+        assertContentEquals(arrayOf(null, null, blue, blue, null, null, null), cells[4])
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[5])
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[6])
     }
 
     @Test
     fun `setTransformation - ROTATE_90_CCW`() {
-        val pattern = Pattern.Ladder()
+        val pattern = Pattern.Bowl()
         pattern.setTransformation(Pattern.Transformation.ROTATE_90_CCW)
         pattern.apply(cells, Position(1, 2), blue)
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[0])
-        assertContentEquals(arrayOf(null, null, null, null, blue, null, null), cells[1])
-        assertContentEquals(arrayOf(null, null, null, blue, blue, null, null), cells[2])
-        assertContentEquals(arrayOf(null, null, blue, blue, blue, null, null), cells[3])
-        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[4])
+        assertContentEquals(arrayOf(null, null, blue, blue, null, null, null), cells[1])
+        assertContentEquals(arrayOf(null, null, null, blue, null, null, null), cells[2])
+        assertContentEquals(arrayOf(null, null, null, blue, null, null, null), cells[3])
+        assertContentEquals(arrayOf(null, null, blue, blue, null, null, null), cells[4])
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[5])
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[6])
     }
@@ -121,4 +123,30 @@ class PatternTest {
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[6])
     }
 
+    @Test
+    fun `setTransformation - dimensions change`() {
+        val pattern = Pattern.Bowl()
+        assertEquals(4, pattern.width)
+        assertEquals(2, pattern.height)
+
+        pattern.setTransformation(Pattern.Transformation.FLIP_VERTICALLY)
+        assertEquals(4, pattern.width)
+        assertEquals(2, pattern.height)
+
+        pattern.setTransformation(Pattern.Transformation.FLIP_HORIZONTALLY)
+        assertEquals(4, pattern.width)
+        assertEquals(2, pattern.height)
+
+        pattern.setTransformation(Pattern.Transformation.ROTATE_180)
+        assertEquals(4, pattern.width)
+        assertEquals(2, pattern.height)
+
+        pattern.setTransformation(Pattern.Transformation.ROTATE_90_CW)
+        assertEquals(2, pattern.width)
+        assertEquals(4, pattern.height)
+
+        pattern.setTransformation(Pattern.Transformation.ROTATE_90_CCW)
+        assertEquals(2, pattern.width)
+        assertEquals(4, pattern.height)
+    }
 }

@@ -40,7 +40,7 @@ private fun mainSolve() {
         "gbrrrrrvv",
         "gbbbbbvvv",
     )
-    val field = decodeField(encodedField)
+    val field = FieldCodec.decodeFromHumanText(encodedField)
     printField(field)
     println()
 
@@ -94,7 +94,7 @@ private fun mainPlay() {
         println("Probably field is not solvable: $e")
     }
     println("Field:")
-    println(encodeField(field).joinToString(separator = "|"))
+    println(FieldCodec.encodeToCompressedString(field))
     GameUI.show(field, solutions.first())
 }
 
@@ -126,41 +126,6 @@ fun printSolutionStep(field: Field, stepColorRegions: Map<Color, Set<Position>>,
         }
         println()
     }
-}
-
-fun decodeField(encodedField: List<String>): Field {
-    val colorRegions = mutableMapOf<Color, MutableSet<Position>>()
-    encodedField.forEachIndexed { row, rowValue ->
-        rowValue.forEachIndexed { col, cell ->
-            val pos = Position(row, col)
-            val color = Color.decode(cell)
-            colorRegions.getOrPut(color) { mutableSetOf() } += pos
-        }
-    }
-
-    // the field must be square
-    val totalCells = encodedField.size * encodedField.size
-    if (colorRegions.values.sumOf { it.size } != totalCells) {
-        error("Wrongly encoded field")
-    }
-
-    return Field(
-        size = encodedField.size,
-        colorRegions = colorRegions
-    )
-}
-
-fun encodeField(field: Field): List<String> {
-    val encoded = mutableListOf<String>()
-    for (row in 0 until field.size) {
-        var rowValue = ""
-        for (col in 0 until field.size) {
-            val color = field.colorRegions.getColor(Position(row, col)) ?: error("Bad field")
-            rowValue += color.value
-        }
-        encoded += rowValue
-    }
-    return encoded
 }
 
 fun isValidField(field: Field): Boolean {

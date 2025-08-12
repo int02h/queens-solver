@@ -1,7 +1,7 @@
+import com.dpforge.easyraster.FieldCodec
 import com.dpforge.easyraster.Position
 import com.dpforge.easyraster.SolutionFinder
 import com.dpforge.easyraster.Solver
-import com.dpforge.easyraster.decodeField
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -62,8 +62,8 @@ class GeneratedGameTest {
     }
 
     @Test
-    fun `seed 6552667839227210360, size 9`() {
-        val field = decodeField(
+    fun test3() {
+        val field = FieldCodec.decodeFromHumanText(
             listOf(
                 "yyyywwwww",
                 "yvvooowww",
@@ -85,7 +85,7 @@ class GeneratedGameTest {
     }
 
     private fun solve(vararg encodedField: String): Set<Position> {
-        val field = decodeField(encodedField.toList())
+        val field = FieldCodec.decodeFromHumanText(encodedField.toList())
         val allSolutions = SolutionFinder().findAllSolutions(field)
         assertEquals(1, allSolutions.size)
 
