@@ -79,4 +79,46 @@ class PatternTest {
         assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[6])
     }
 
+    @Test
+    fun `setTransformation - ROTATE_90_CW`() {
+        val pattern = Pattern.Ladder()
+        pattern.setTransformation(Pattern.Transformation.ROTATE_90_CW)
+        pattern.apply(cells, Position(1, 2), blue)
+        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[0])
+        assertContentEquals(arrayOf(null, null, blue, blue, blue, null, null), cells[1])
+        assertContentEquals(arrayOf(null, null, blue, blue, null, null, null), cells[2])
+        assertContentEquals(arrayOf(null, null, blue, null, null, null, null), cells[3])
+        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[4])
+        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[5])
+        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[6])
+    }
+
+    @Test
+    fun `setTransformation - ROTATE_90_CCW`() {
+        val pattern = Pattern.Ladder()
+        pattern.setTransformation(Pattern.Transformation.ROTATE_90_CCW)
+        pattern.apply(cells, Position(1, 2), blue)
+        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[0])
+        assertContentEquals(arrayOf(null, null, null, null, blue, null, null), cells[1])
+        assertContentEquals(arrayOf(null, null, null, blue, blue, null, null), cells[2])
+        assertContentEquals(arrayOf(null, null, blue, blue, blue, null, null), cells[3])
+        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[4])
+        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[5])
+        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[6])
+    }
+
+    @Test
+    fun `setTransformation - ROTATE_180`() {
+        val pattern = Pattern.Ladder()
+        pattern.setTransformation(Pattern.Transformation.ROTATE_180)
+        pattern.apply(cells, Position(1, 2), blue)
+        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[0])
+        assertContentEquals(arrayOf(null, null, blue, blue, blue, null, null), cells[1])
+        assertContentEquals(arrayOf(null, null, null, blue, blue, null, null), cells[2])
+        assertContentEquals(arrayOf(null, null, null, null, blue, null, null), cells[3])
+        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[4])
+        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[5])
+        assertContentEquals(arrayOf(null, null, null, null, null, null, null), cells[6])
+    }
+
 }

@@ -67,6 +67,33 @@ sealed class Pattern(private vararg val shape: String) {
         FLIP_HORIZONTALLY {
             override fun transform(width: Int, height: Int, position: Position): Position =
                 Position(position.row, width - position.col - 1)
+        },
+        ROTATE_90_CW {
+            override fun transform(
+                width: Int,
+                height: Int,
+                position: Position
+            ): Position {
+                return Position(position.col, height - position.row - 1)
+            }
+        },
+        ROTATE_90_CCW {
+            override fun transform(
+                width: Int,
+                height: Int,
+                position: Position
+            ): Position {
+                return Position(width - position.col - 1, position.row)
+            }
+        },
+        ROTATE_180 {
+            override fun transform(
+                width: Int,
+                height: Int,
+                position: Position
+            ): Position {
+                return Position(height - position.row - 1, width - position.col - 1)
+            }
         };
 
         abstract fun transform(width: Int, height: Int, position: Position): Position
