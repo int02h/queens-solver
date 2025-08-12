@@ -154,16 +154,16 @@ class GameUI(
 
     private fun toAWTColor(color: Color): AWTColor {
         return when (color) {
-            Color.PURPLE -> AWTColor(128, 0, 128)
-            Color.VIOLET -> AWTColor(238, 130, 238)
-            Color.ORANGE -> AWTColor.ORANGE
-            Color.BLUE -> AWTColor(0, 128, 255)
-            Color.GREEN -> AWTColor.GREEN
-            Color.WHITE -> AWTColor.LIGHT_GRAY
-            Color.RED -> AWTColor.RED
-            Color.YELLOW -> AWTColor.YELLOW
-            Color.DARK_GRAY -> AWTColor.DARK_GRAY
-            Color.LIGHT_BLUE -> AWTColor(0x87, 0xce, 0xfa)
+            Color.PURPLE -> AWTColor(223, 160, 192)
+            Color.VIOLET -> AWTColor(188, 163, 226)
+            Color.ORANGE -> AWTColor(255, 201, 146)
+            Color.BLUE -> AWTColor(151, 190, 255)
+            Color.GREEN -> AWTColor(179, 223, 160)
+            Color.WHITE -> AWTColor(223, 223, 223)
+            Color.RED -> AWTColor(255, 123, 96)
+            Color.YELLOW -> AWTColor(230, 243, 137)
+            Color.DARK_GRAY -> AWTColor(185, 178, 158)
+            Color.LIGHT_BLUE -> AWTColor(163, 211, 216)
         }
     }
 
