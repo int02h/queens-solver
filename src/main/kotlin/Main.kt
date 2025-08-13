@@ -25,6 +25,7 @@ fun main(args: Array<String>) {
     when (mode) {
         "solve" -> mainSolve()
         "play" -> mainPlay()
+        "server" -> mainServer()
     }
 }
 
@@ -96,6 +97,10 @@ private fun mainPlay() {
     println("Field:")
     println(FieldCodec.encodeToCompressedString(field))
     GameUI.show(field, solutions.first())
+}
+
+private fun mainServer() {
+    WebServer().start(port = 54411)
 }
 
 fun printField(field: Field) {
