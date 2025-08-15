@@ -15,7 +15,17 @@ class SolutionContext(field: Field) {
         .toMutableMap()
     val colorRegions: Map<Color, Set<Position>> = _colorRegions
 
+    private val cells = Array(field.size) { Array(field.size) { Color.WHITE } }
+
     var hasChanges = false
+
+    init {
+        field.colorRegions.forEach { (color, region) ->
+            region.forEach { pos ->
+                cells[pos.row][pos.col] = color
+            }
+        }
+    }
 
     fun putQueen(pos: Position) {
         _queens += pos
@@ -48,12 +58,20 @@ class SolutionContext(field: Field) {
         return ctx
     }
 
-    fun getRegionsOnRows(rows: Set<Int>): Set<Color> {
-        return _colorRegions.filterValues { region -> region.any { pos -> rows.contains(pos.row) } }.keys.toSet()
+    fun getRegionsOnRows(rows: Set<Int>, regions: ColorSet) {
+        for (row in rows) {
+            for (color in cells[row]) {
+                regions.add(color)
+            }
+        }
     }
 
-    fun getRegionsOnCols(cols: Set<Int>): Set<Color> {
-        return _colorRegions.filterValues { region -> region.any { pos -> cols.contains(pos.col) } }.keys.toSet()
+    fun getRegionsOnCols(cols: Set<Int>, regions: ColorSet) {
+        for (rowColors in cells) {
+            for (col in cols) {
+                regions.add(rowColors[col])
+            }
+        }
     }
 }
 
