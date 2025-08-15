@@ -65,6 +65,11 @@ sealed class Pattern(private vararg val shape: String) {
         "###",
     )
 
+    class ZShape : Pattern(
+        "##.",
+        ".##"
+    )
+
     class Mug : Pattern(
         "#.#",
         "###",
@@ -130,7 +135,14 @@ sealed class Pattern(private vararg val shape: String) {
     )
 
     // 5-Shape is horizontally-flipped 2-Shape
-    // 6-Shape, 8-Shape, and 9-Shape have a closed area inside
+
+    class SixShape : Pattern(
+        "###",
+        "#",
+        "###",
+        "###",
+        "###",
+    )
 
     class SevenShape : Pattern(
         "###",
@@ -139,6 +151,16 @@ sealed class Pattern(private vararg val shape: String) {
         "..#",
         "..#",
     )
+
+    class EightShape : Pattern(
+        "###",
+        "###",
+        ".#.",
+        "###",
+        "###",
+    )
+
+    // 9-Shape is vertically-flipped 6-Shape
 
     enum class Transformation {
         NONE {
