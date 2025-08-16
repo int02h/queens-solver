@@ -11,24 +11,30 @@ class GameField {
     #rows
     #cols
     #onCellUpdated
+    #onSolutionReady
+    #queens = new Set()
     #isMouseDown = false
     #queenAutoCrosses = new Map()
     #cells = []
+    #colors = []
     #states = []
 
-    constructor(rows, cols, onCellUpdated) {
+    constructor(rows, cols, onCellUpdated, onSolutionReady) {
         this.#rows = rows
         this.#cols = cols
         this.#onCellUpdated = onCellUpdated
+        this.#onSolutionReady = onSolutionReady
 
         for (let i = 0; i < rows; i++) {
             this.#cells.push([])
+            this.#colors.push([])
             this.#states.push([])
         }
     }
 
-    setCell(row, col, cell) {
+    setCell(row, col, cell, color) {
         this.#cells[row][col] = cell
+        this.#colors[row][col] = color
         this.#setCellState(row, col, CellState.EMPTY)
     }
 
@@ -41,10 +47,15 @@ class GameField {
             case CellState.CROSSED:
                 this.#setCellState(row, col, CellState.QUEEN)
                 this.#putQueenAutoCrosses(row, col)
+                this.#queens.add(`${row}:${col}`)
+                if (this.#queens.size === this.#rows) {
+                    this.#onSolutionReady([...this.#queens].sort().join(","))
+                }
                 break;
             case CellState.QUEEN:
                 this.#setCellState(row, col, CellState.EMPTY)
                 this.#removeQueenAutoCrosses(row, col)
+                this.#queens.delete(`${row}:${col}`)
                 break;
         }
     }
@@ -63,9 +74,18 @@ class GameField {
         const crosses = []
 
         const putCrossIfEmpty = (row, col) => {
-            if (this.#states[row][col] === CellState.EMPTY) {
+            if (this.#states[row] && this.#states[row][col] === CellState.EMPTY) {
                 this.#setCellState(row, col, CellState.CROSSED)
                 crosses.push({row: row, col: col})
+            }
+        }
+
+        const queenColor = this.#colors[queenRow][queenCol]
+        for (let row = 0; row < this.#rows; row++) {
+            for (let col = 0; col < this.#cols; col++) {
+                if (row !== queenRow && col !== queenCol && this.#colors[row][col] === queenColor) {
+                    putCrossIfEmpty(row, col)
+                }
             }
         }
 
@@ -87,7 +107,9 @@ class GameField {
             return
         }
         for (let cross of crosses) {
-            this.#setCellState(cross.row, cross.col, CellState.EMPTY)
+            if (this.#states[cross.row][cross.col] === CellState.CROSSED) {
+                this.#setCellState(cross.row, cross.col, CellState.EMPTY)
+            }
         }
         queenAutoCrosses.delete(`row:${queenRow};col:${queenCol}`)
     }
@@ -97,62 +119,4 @@ class GameField {
         const cell = this.#cells[row][col]
         this.#onCellUpdated(cell, state)
     }
-}
-
-function createGrid(rows = 7, cols = 7, preferredCellSize = 48) {
-    const grid = document.getElementById('grid');
-    grid.innerHTML = ''; // Clear any existing cells
-
-    // Determine the max size available
-    const maxWidth = window.innerWidth * 0.95;
-    const maxHeight = window.innerHeight * 0.95;
-    const maxGridSize = Math.min(maxWidth, maxHeight);
-    const cellSize = Math.min(preferredCellSize, Math.floor(maxGridSize / Math.max(rows, cols)));
-
-    // Set CSS grid styles
-    grid.style.gridTemplateColumns = `repeat(${cols}, ${cellSize}px)`;
-    grid.style.gridTemplateRows = `repeat(${rows}, ${cellSize}px)`;
-
-    const field = new GameField(rows, cols, function (cell, state) {
-        switch (state) {
-            case CellState.EMPTY:
-                cell.textContent = ""
-                break
-            case CellState.CROSSED:
-                cell.textContent = "x"
-                break;
-            case CellState.QUEEN:
-                cell.textContent = "Q"
-                break;
-        }
-    })
-
-    // Populate cells
-    for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
-            const cell = document.createElement('div');
-            cell.id = `row:${row};col:${col}`;
-            cell.position = {row: row, col: col}
-            cell.classList.add('cell');
-            cell.style.width = `${cellSize}px`;
-            cell.style.height = `${cellSize}px`;
-            field.setCell(row, col, cell)
-
-            // === Event Handlers ===
-            cell.addEventListener('mousedown', (e) => {
-                field.onMouseDown(cell.position.row, cell.position.col)
-            });
-
-            cell.addEventListener('mouseenter', () => {
-                field.onMouseEnter(cell.position.row, cell.position.col)
-            });
-
-            grid.appendChild(cell);
-        }
-    }
-
-    // Global mouseup listener
-    document.addEventListener('mouseup', () => {
-        field.onMouseUp()
-    });
 }
