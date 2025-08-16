@@ -1,0 +1,66 @@
+package com.dpforge.easyraster
+
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.BlockingQueue
+import kotlin.random.Random
+
+object GeneratorJob {
+
+    private val buffer7: BlockingQueue<Field> = ArrayBlockingQueue(25)
+    private val buffer8: BlockingQueue<Field> = ArrayBlockingQueue(25)
+    private val buffer9: BlockingQueue<Field> = ArrayBlockingQueue(25)
+    private val buffer10: BlockingQueue<Field> = ArrayBlockingQueue(25)
+
+    fun start() {
+        Thread { startGeneration(buffer7, 7) }.start()
+        Thread { startGeneration(buffer8, 8) }.start()
+        Thread { startGeneration(buffer9, 9) }.start()
+        Thread { startGeneration(buffer10, 10) }.start()
+        log("Started")
+    }
+
+    fun getField(size: Int): Field {
+        log("Field of size $size requested")
+        val field = when (size) {
+            7 -> buffer7.take()
+            8 -> buffer8.take()
+            9 -> buffer9.take()
+            10 -> buffer10.take()
+            else -> error("Unsupported field size: $size")
+        }
+        log("Field of size $size returned")
+        return field
+    }
+
+    private fun startGeneration(buffer: BlockingQueue<Field>, size: Int) {
+        while (true) {
+            val field = generateField(size)
+            buffer.put(field)
+            log("Field of size $size generated. Buffer size: ${buffer.size}")
+        }
+    }
+
+    private fun log(message: String) {
+        println("[GENERATION JOB] $message")
+    }
+
+    private fun generateField(size: Int): Field {
+        var seed: Long
+        var field: Field
+        var solutions: List<Set<Position>> = emptyList()
+        val seedRandom = Random(System.nanoTime())
+        val solutionFinder = SolutionFinder(exitEarlier = true)
+
+        do {
+            seed = seedRandom.nextLong(1, Long.MAX_VALUE)
+            field = Generator(Random(seed)).generateWithPatterns(size)
+
+            if (!isValidField(field)) {
+                continue
+            }
+
+            solutions = solutionFinder.findAllSolutions(field)
+        } while (solutions.size != 1)
+        return field
+    }
+}
