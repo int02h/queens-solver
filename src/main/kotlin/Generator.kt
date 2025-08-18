@@ -12,7 +12,145 @@ class Generator(
         Callable { it.createInstance() }
     }
 
-    fun generateWithPatterns(fieldSize: Int): Field {
+    private val solutionFinder = SolutionFinder(exitEarlier = true)
+
+    fun generate(size: Int): Field {
+        val isQuickGeneration = size < SLOW_GENERATION_SIZE
+        if (isQuickGeneration) {
+            return generateSolvableField(size)
+        }
+        var field = generateSolvableField(SLOW_GENERATION_SIZE - 1)
+        while (field.size != size) {
+            field = enlargeToSolvable(field)
+        }
+        return field
+    }
+
+    private fun enlargeToSolvable(field: Field): Field {
+        var solutions: List<Set<Position>>
+        var enlarged: Field
+        do {
+            enlarged = enlarge(field)
+            solutions = solutionFinder.findAllSolutions(enlarged)
+        } while (solutions.size != 1)
+        return enlarged
+    }
+
+    private fun enlarge(field: Field): Field {
+        val newSize = field.size + 1
+        val cells = Array(newSize) { Array<Color?>(newSize) { null } }
+        val target = Position(
+            row = random.nextInt(0, newSize),
+            col = random.nextInt(0, newSize)
+        )
+        val allColors = mutableSetOf<Color>()
+
+        for (row in 0 until field.size) {
+            val dstRow = if (row < target.row) row else row + 1
+            for (col in 0 until field.size) {
+                val dstCol = if (col < target.col) col else col + 1
+                val srcColor = field.colorRegions.getColor(Position(row, col))
+                cells[dstRow][dstCol] = srcColor
+                allColors += srcColor
+            }
+        }
+
+        val newColor = (Color.entries - allColors).random(random)
+        cells[target.row][target.col] = newColor
+
+        var canUseNewColor = true
+        for (col in target.col - 1 downTo 0) {
+            val colorAbove = cells.getOrNull(target.row - 1)?.getOrNull(col)
+            val colorBelow = cells.getOrNull(target.row + 1)?.getOrNull(col)
+            val possibleColors = setOfNotNull(
+                colorAbove,
+                colorBelow,
+                newColor.takeIf { canUseNewColor && colorAbove != colorBelow }
+            )
+            val color = possibleColors.random(random)
+            if (color != newColor) {
+                canUseNewColor = false
+            }
+            cells[target.row][col] = color
+        }
+
+        canUseNewColor = true
+        for (col in target.col + 1 until newSize) {
+            val colorAbove = cells.getOrNull(target.row - 1)?.getOrNull(col)
+            val colorBelow = cells.getOrNull(target.row + 1)?.getOrNull(col)
+            val possibleColors = setOfNotNull(
+                colorAbove,
+                colorBelow,
+                newColor.takeIf { canUseNewColor && colorAbove != colorBelow }
+            )
+            val color = possibleColors.random(random)
+            if (color != newColor) {
+                canUseNewColor = false
+            }
+            cells[target.row][col] = color
+        }
+
+        canUseNewColor = true
+        for (row in target.row - 1 downTo 0) {
+            val colorLeft = cells.getOrNull(row)?.getOrNull(target.col - 1)
+            val colorRight = cells.getOrNull(row)?.getOrNull(target.col + 1)
+            val possibleColors = setOfNotNull(
+                colorLeft,
+                colorRight,
+                newColor.takeIf { canUseNewColor && colorLeft != colorRight }
+            )
+            val color = possibleColors.random(random)
+            if (color != newColor) {
+                canUseNewColor = false
+            }
+            cells[row][target.col] = color
+        }
+
+        canUseNewColor = true
+        for (row in target.row + 1 until newSize) {
+            val colorLeft = cells.getOrNull(row)?.getOrNull(target.col - 1)
+            val colorRight = cells.getOrNull(row)?.getOrNull(target.col + 1)
+            val possibleColors = setOfNotNull(
+                colorLeft,
+                colorRight,
+                newColor.takeIf { canUseNewColor && colorLeft != colorRight }
+            )
+            val color = possibleColors.random(random)
+            if (color != newColor) {
+                canUseNewColor = false
+            }
+            cells[row][target.col] = color
+        }
+
+        val colorRegions = mutableMapOf<Color, MutableSet<Position>>()
+
+        for (row in 0 until newSize) {
+            for (col in 0 until newSize) {
+                colorRegions.getOrPut(cells[row][col]!!) { mutableSetOf() } += Position(row, col)
+            }
+        }
+
+        return Field(
+            size = newSize,
+            colorRegions = colorRegions
+        )
+    }
+
+    private fun generateSolvableField(size: Int): Field {
+        var field: Field
+        var solutions: List<Set<Position>> = emptyList()
+
+        do {
+            field = generateWithPatterns(size)
+            if (!isValidField(field, useSolver = false)) {
+                continue
+            }
+            solutions = solutionFinder.findAllSolutions(field)
+        } while (solutions.size != 1)
+        return field
+    }
+
+    private fun generateWithPatterns(fieldSize: Int): Field {
         val cells = Array(fieldSize) { Array<Color?>(fieldSize) { null } }
         val allColors = Color.entries.shuffled(random).subList(0, fieldSize).toMutableList()
         val colorRegions = mutableMapOf<Color, MutableSet<Position>>()
@@ -85,6 +223,92 @@ class Generator(
             }
         }
         return result
+    }
+
+    private fun isValidField(field: Field, useSolver: Boolean): Boolean {
+        if (field.colorRegions.size != field.size) {
+            return false
+        }
+
+        for ((s1, s2) in field.colorRegions.values.toList().allUnorderedPairs()) {
+            val rows1 = s1.map { it.row }.toSet()
+            val rows2 = s2.map { it.row }.toSet()
+            if (rows1.size == 1 && rows2.size == 1 && rows1.first() == rows2.first()) {
+                return false
+            }
+
+            val cols1 = s1.map { it.col }.toSet()
+            val cols2 = s2.map { it.col }.toSet()
+            if (cols1.size == 1 && cols2.size == 1 && cols1.first() == cols2.first()) {
+                return false
+            }
+        }
+
+        val fullLine = mutableSetOf<Color>()
+        for (row in 0 until field.size) {
+            val rowColors = field.colorRegions.getRowColors(row)
+            if (rowColors.size == 1) {
+                if (!fullLine.add(rowColors.first())) {
+                    return false
+                }
+            }
+        }
+
+        fullLine.clear()
+        for (col in 0 until field.size) {
+            val col = field.colorRegions.getColColors(col)
+            if (col.size == 1) {
+                if (!fullLine.add(col.first())) {
+                    return false
+                }
+            }
+        }
+
+        return try {
+            if (useSolver) {
+                Solver().solveField(field)
+            }
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private fun Map<Color, Set<Position>>.getColor(pos: Position): Color {
+        for ((color, posSet) in this) {
+            if (posSet.contains(pos)) {
+                return color
+            }
+        }
+        error("Bad position")
+    }
+
+    private fun Map<Color, Set<Position>>.getRowColors(row: Int): Set<Color> {
+        val result = mutableSetOf<Color>()
+        for ((color, posSet) in this) {
+            for (pos in posSet) {
+                if (pos.row == row) {
+                    result += color
+                }
+            }
+        }
+        return result
+    }
+
+    private fun Map<Color, Set<Position>>.getColColors(col: Int): Set<Color> {
+        val result = mutableSetOf<Color>()
+        for ((color, posSet) in this) {
+            for (pos in posSet) {
+                if (pos.col == col) {
+                    result += color
+                }
+            }
+        }
+        return result
+    }
+
+    companion object {
+        private const val SLOW_GENERATION_SIZE = 10
     }
 
 }
