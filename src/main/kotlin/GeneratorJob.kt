@@ -34,7 +34,7 @@ object GeneratorJob {
 
     private fun startGeneration(buffer: BlockingQueue<Field>, size: Int) {
         while (true) {
-            val field = generateField(size)
+            val field = Generator(Random(System.nanoTime())).generate(size)
             buffer.put(field)
             log("Field of size $size generated. Buffer size: ${buffer.size}")
         }
@@ -44,23 +44,4 @@ object GeneratorJob {
         println("[GENERATION JOB] $message")
     }
 
-    private fun generateField(size: Int): Field {
-        var seed: Long
-        var field: Field
-        var solutions: List<Set<Position>> = emptyList()
-        val seedRandom = Random(System.nanoTime())
-        val solutionFinder = SolutionFinder(exitEarlier = true)
-
-        do {
-            seed = seedRandom.nextLong(1, Long.MAX_VALUE)
-            field = Generator(Random(seed)).generateWithPatterns(size)
-
-            if (!isValidField(field)) {
-                continue
-            }
-
-            solutions = solutionFinder.findAllSolutions(field)
-        } while (solutions.size != 1)
-        return field
-    }
 }
