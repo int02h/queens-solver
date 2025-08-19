@@ -57,10 +57,11 @@ class GameHandler : HttpHandler {
         val encodedField = path.substring(path.lastIndexOf('/') + 1)
         val field = try {
             FieldCodec.decodeFromCompressedString(encodedField)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
         if (field != null) {
+            FieldHistory.add(field)
             val response = generateGameHtml(field)
             exchange.responseHeaders.set("Content-Type", "text/html; charset=UTF-8")
             exchange.sendResponseHeaders(200, response.size.toLong())
@@ -87,7 +88,14 @@ class GameHandler : HttpHandler {
                 append("</tr>\n")
             }
         }
-        val solution = Solver().solveField(field)
+        val solution = try {
+            Solver().solveField(field)
+        } catch (e: Exception) {
+            val encodedField = FieldCodec.encodeToCompressedString(field)
+            System.err.println("Probable field is not solvable: ${e.message}\nField: $encodedField")
+            SolutionFinder(exitEarlier = true).findAllSolutions(field).first()
+        }
+        val encodedSolution = solution
             .map { "${it.row}:${it.col}" }
             .sorted()
             .joinToString(",")
@@ -95,7 +103,7 @@ class GameHandler : HttpHandler {
         template = template
             .replace("{{FIELD}}", table)
             .replace("{{FIELD_SIZE}}", "${field.size}")
-            .replace("{{SOLUTION}}", solution)
+            .replace("{{SOLUTION}}", encodedSolution)
             .replace("{{URL_NEXT}}", makeFieldUrlPath(nextField))
         return template.toByteArray()
     }
