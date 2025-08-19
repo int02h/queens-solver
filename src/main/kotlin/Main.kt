@@ -30,18 +30,8 @@ fun main(args: Array<String>) {
 }
 
 private fun mainSolve() {
-    val encodedField = listOf(
-        "dddddddww",
-        "dddpppyyw",
-        "ddpppppyw",
-        "ddpppppyy",
-        "doppoppoy",
-        "goooooooy",
-        "grrororrv",
-        "gbrrrrrvv",
-        "gbbbbbvvv",
-    )
-    val field = FieldCodec.decodeFromHumanText(encodedField)
+    val encodedField = "2r2g2o4yr2wg2o2p2yv2wgob2pby2v2gobp2by3vdo4byvdv3dblbyvdv3d3byv7dby8dby9dy"
+    val field = FieldCodec.decodeFromCompressedString(encodedField)
     printField(field)
     println()
 
