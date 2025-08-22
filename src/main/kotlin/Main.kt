@@ -13,6 +13,7 @@ private val ANSI_BG_COLOR = mapOf(
     Color.YELLOW to "\u001B[43m",
     Color.DARK_GRAY to "\u001B[0;100m", // high intensity black
     Color.LIGHT_BLUE to "\u001B[0;104m", // high intensity blue
+    Color.CYAN to "\u001B[46m"
 )
 
 private const val ANSI_RESET = "\u001B[0m"
@@ -30,8 +31,20 @@ fun main(args: Array<String>) {
 }
 
 private fun mainSolve() {
-    val encodedField = "2r2g2o4yr2wg2o2p2yv2wgob2pby2v2gobp2by3vdo4byvdv3dblbyvdv3d3byv7dby8dby9dy"
-    val field = FieldCodec.decodeFromCompressedString(encodedField)
+    val encodedField = listOf(
+        "ppppppppppp",
+        "opdpppppvpp",
+        "oodppppvvpp",
+        "dddddpvvvvv",
+        "wwdppppvvrr",
+        "wpdpppppvrr",
+        "wpppyprrrrr",
+        "wbpyycyyrlr",
+        "bbbycccylll",
+        "ybyyycyyylg",
+        "yyyyyyyyggg"
+    )
+    val field = FieldCodec.decodeFromHumanText(encodedField)
     printField(field)
     println()
 

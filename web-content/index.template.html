@@ -19,29 +19,7 @@
 </head>
 <body>
     <div class="btn-menu">
-        <button id="btn7x7">7x7</button>
-        <button id="btn8x8">8x8</button>
-        <button id="btn9x9">9x9</button>
-        <button id="btn10x10">10x10</button>
+        {{BUTTONS}}
     </div>
-
-    <script>
-        document.getElementById("btn7x7").addEventListener("click", (e) => {
-          e.preventDefault();
-          location.pathname = "{{URL_7x7}}";
-        });
-        document.getElementById("btn8x8").addEventListener("click", (e) => {
-          e.preventDefault();
-          location.pathname = "{{URL_8x8}}";
-        });
-        document.getElementById("btn9x9").addEventListener("click", (e) => {
-          e.preventDefault();
-          location.pathname = "{{URL_9x9}}";
-        });
-        document.getElementById("btn10x10").addEventListener("click", (e) => {
-          e.preventDefault();
-          location.pathname = "{{URL_10x10}}";
-        });
-    </script>
 </body>
 </html>

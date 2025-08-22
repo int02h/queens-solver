@@ -24,12 +24,14 @@ class MainHandler : HttpHandler {
         val filename = path.substring(path.lastIndexOf('/') + 1)
         if (filename.isEmpty()) {
             val template = File("web-content", "index.template.html").readText()
-            val response = template
-                .replace("{{URL_7x7}}", makeFieldUrlPath(GeneratorJob.getField(7)))
-                .replace("{{URL_8x8}}", makeFieldUrlPath(GeneratorJob.getField(8)))
-                .replace("{{URL_9x9}}", makeFieldUrlPath(GeneratorJob.getField(9)))
-                .replace("{{URL_10x10}}", makeFieldUrlPath(GeneratorJob.getField(10)))
-                .toByteArray()
+            val buttons = buildString {
+                Constants.SUPPORTED_SIZES.forEach { size ->
+                    val path = makeFieldUrlPath(GeneratorJob.getField(size))
+                    append("<button onclick=\"location.pathname='$path'\">${size}x${size}</button>")
+                }
+            }
+            val response = template.replace("{{BUTTONS}}", buttons).toByteArray()
+
             exchange.responseHeaders.set("Content-Type", "text/html; charset=UTF-8")
             exchange.sendResponseHeaders(200, response.size.toLong())
             exchange.responseBody.use { os ->

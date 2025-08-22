@@ -789,6 +789,39 @@ class RealGameTest {
         )
     }
 
+    @Test
+    fun `2025-Aug-21`() {
+        val queens = solve(
+            "ppppppppppp",
+            "opdpppppvpp",
+            "oodppppvvpp",
+            "dddddpvvvvv",
+            "wwdppppvvrr",
+            "wpdpppppvrr",
+            "wpppyprrrrr",
+            "wbpyycyyrlr",
+            "bbbycccylll",
+            "ybyyycyyylg",
+            "yyyyyyyyggg"
+        )
+        assertEquals(
+            setOf(
+                Position(row = 0, col = 6),
+                Position(row = 1, col = 0),
+                Position(row = 2, col = 7),
+                Position(row = 3, col = 3),
+                Position(row = 4, col = 1),
+                Position(row = 5, col = 10),
+                Position(row = 6, col = 4),
+                Position(row = 7, col = 9),
+                Position(row = 8, col = 2),
+                Position(row = 9, col = 5),
+                Position(row = 10, col = 8),
+            ),
+            queens
+        )
+    }
+
     private fun solve(vararg encodedField: String): Set<Position> {
         val field = FieldCodec.decodeFromHumanText(encodedField.toList())
         val allSolutions = SolutionFinder().findAllSolutions(field)
