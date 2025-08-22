@@ -6,33 +6,25 @@ import kotlin.random.Random
 
 object GeneratorJob {
 
-    private val buffer7: BlockingQueue<Field> = ArrayBlockingQueue(25)
-    private val buffer8: BlockingQueue<Field> = ArrayBlockingQueue(25)
-    private val buffer9: BlockingQueue<Field> = ArrayBlockingQueue(25)
-    private val buffer10: BlockingQueue<Field> = ArrayBlockingQueue(25)
+    private val buffers: Map<Int, BlockingQueue<Field>> =
+        Constants.SUPPORTED_SIZES.associateWith { ArrayBlockingQueue(25) }
 
     fun start() {
-        Thread { startGeneration(buffer7, 7) }.start()
-        Thread { startGeneration(buffer8, 8) }.start()
-        Thread { startGeneration(buffer9, 9) }.start()
-        Thread { startGeneration(buffer10, 10) }.start()
+        Constants.SUPPORTED_SIZES.forEach { size ->
+            Thread { startGeneration(size) }.start()
+        }
         log("Started")
     }
 
     fun getField(size: Int): Field {
         log("Field of size $size requested")
-        val field = when (size) {
-            7 -> buffer7.take()
-            8 -> buffer8.take()
-            9 -> buffer9.take()
-            10 -> buffer10.take()
-            else -> error("Unsupported field size: $size")
-        }
+        val field = buffers.getValue(size).take()
         log("Field of size $size returned")
         return field
     }
 
-    private fun startGeneration(buffer: BlockingQueue<Field>, size: Int) {
+    private fun startGeneration(size: Int) {
+        val buffer = buffers.getValue(size)
         while (true) {
             val field = Generator(Random(System.nanoTime())).generate(size)
             buffer.put(field)
