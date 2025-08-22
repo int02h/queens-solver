@@ -21,6 +21,7 @@ class WebServer {
 class MainHandler : HttpHandler {
     override fun handle(exchange: HttpExchange) {
         val path = exchange.requestURI.getPath()
+        println("request: ${exchange.requestURI}")
         val filename = path.substring(path.lastIndexOf('/') + 1)
         if (filename.isEmpty()) {
             val template = File("web-content", "index.template.html").readText()

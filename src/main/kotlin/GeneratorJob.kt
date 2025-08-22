@@ -33,7 +33,7 @@ object GeneratorJob {
     }
 
     private fun log(message: String) {
-        println("[GENERATION JOB] $message")
+        //println("[GENERATION JOB] $message")
     }
 
 }

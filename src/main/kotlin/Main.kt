@@ -26,7 +26,7 @@ fun main(args: Array<String>) {
     when (mode) {
         "solve" -> mainSolve()
         "play" -> mainPlay()
-        "server" -> mainServer()
+        "server" -> mainServer(port = args.getOrNull(1)?.toIntOrNull())
     }
 }
 
@@ -76,8 +76,8 @@ private fun mainPlay() {
     GameUI.show(field, solutionFinder.findAllSolutions(field).first())
 }
 
-private fun mainServer() {
-    WebServer().start(port = 54411)
+private fun mainServer(port: Int?) {
+    WebServer().start(port = port ?: 0)
 }
 
 fun printField(field: Field) {
