@@ -1,5 +1,7 @@
 plugins {
+    id 'application'
     id 'org.jetbrains.kotlin.jvm' version '2.1.20'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'com.dpforge.easyraster'
@@ -19,4 +21,15 @@ test {
 }
 kotlin {
     jvmToolchain(21)
+}
+
+application {
+    mainClass = 'com.dpforge.easyraster.MainKt'
+}
+
+tasks.named('shadowJar') {
+    archiveBaseName.set('app')
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
 }
