@@ -107,9 +107,15 @@ class GameHandler : HttpHandler {
         template = template
             .replace("{{FIELD}}", table)
             .replace("{{FIELD_SIZE}}", "${field.size}")
+            .replace("{{FIELD_WIDTH_PX}}", "${getFieldWidth(field.size)}")
             .replace("{{SOLUTION}}", encodedSolution)
             .replace("{{URL_NEXT}}", makeFieldUrlPath(nextField))
         return template.toByteArray()
+    }
+
+    private fun getFieldWidth(fieldSize: Int): String {
+        val borders = (fieldSize + 1)
+        return "${fieldSize * 48 + borders}px"
     }
 
 }

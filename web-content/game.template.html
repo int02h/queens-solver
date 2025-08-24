@@ -8,6 +8,7 @@
         table {
             border-collapse: collapse; /* make borders shared between cells */
             table-layout: fixed;
+            width: min(100%, {{FIELD_WIDTH_PX}})
         }
 
         table, th, td {
@@ -31,8 +32,6 @@
             display: flex;
             justify-content: center;  /* center horizontally */
             align-items: center;      /* center vertically */
-            width: 48px;
-            height: 48px;
         }
 
         .purple { background: rgb(223, 160, 192); }
