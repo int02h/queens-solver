@@ -9,8 +9,8 @@ import java.net.InetSocketAddress
 class WebServer {
     fun start(port: Int = 0) {
         val server = HttpServer.create(InetSocketAddress(port), 0)
-        server.createContext("/game", GameHandler())
-        server.createContext("/health", HealthHandler())
+        server.createContext("/game/", GameHandler())
+        server.createContext("/health/", HealthHandler())
         server.createContext("/", MainHandler())
         server.start()
         GeneratorJob.start()
