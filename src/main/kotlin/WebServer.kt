@@ -9,8 +9,9 @@ import java.net.InetSocketAddress
 class WebServer {
     fun start(port: Int = 0) {
         val server = HttpServer.create(InetSocketAddress(port), 0)
+        server.createContext("/game", GameHandler())
+        server.createContext("/health", HealthHandler())
         server.createContext("/", MainHandler())
-        server.createContext("/game/", GameHandler())
         server.start()
         GeneratorJob.start()
         println("Web server started on port: ${server.address.port}")
@@ -111,6 +112,18 @@ class GameHandler : HttpHandler {
         return template.toByteArray()
     }
 
+}
+
+class HealthHandler : HttpHandler {
+    override fun handle(exchange: HttpExchange) {
+        println("Health check ${exchange.requestURI}")
+        val ok = "OK"
+        exchange.responseHeaders.set("Content-Type", "text/html; charset=UTF-8")
+        exchange.sendResponseHeaders(200, ok.length.toLong())
+        exchange.responseBody.use { os ->
+            os.write(ok.toByteArray())
+        }
+    }
 }
 
 private fun error404(exchange: HttpExchange) {
