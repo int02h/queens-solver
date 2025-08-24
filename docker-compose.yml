@@ -8,9 +8,9 @@ services:
     #environment:
       # Example tuning; you can pass memory, GC, profiles, etc.
       #JAVA_OPTS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75"
-    #healthcheck:
-      #test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health || wget -qO- http://localhost:8080/"]
-      #interval: 10s
-      #timeout: 3s
-      #retries: 10
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:54411/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
     restart: unless-stopped
