@@ -137,17 +137,22 @@ class Generator(
     }
 
     private fun generateSolvableField(size: Int): Field {
-        var field: Field
+        var field: Field? = null
         var solutions: List<Set<Position>> = emptyList()
 
         do {
-            field = generateWithPatterns(size)
+            try {
+                field = generateWithPatterns(size)
+            } catch (e: Exception) {
+                println("Failed to generate field with patterns: $e")
+                continue
+            }
             if (!isValidField(field, useSolver = false)) {
                 continue
             }
             solutions = solutionFinder.findAllSolutions(field)
         } while (solutions.size != 1)
-        return field
+        return field!!
     }
 
     private fun generateWithPatterns(fieldSize: Int): Field {
