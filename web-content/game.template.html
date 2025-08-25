@@ -82,6 +82,7 @@
                     cell.textContent = "Q"
                     break;
             }
+            console.log("on cell change");
             document.getElementById("lose_container").style.display = "none";
         },
         function (queens) {
@@ -97,19 +98,21 @@
         for (let col = 0; col < {{FIELD_SIZE}}; col++) {
             const cell = document.getElementById(`row${row}-col${col}`)
             // === Event Handlers ===
-            cell.addEventListener('mousedown', (e) => {
+            cell.addEventListener('pointerdown', (e) => {
                 field.onMouseDown(row, col)
+                cell.releasePointerCapture(e.pointerId)
             });
-
-            cell.addEventListener('mouseenter', () => {
-                field.onMouseEnter(row, col)
+            cell.addEventListener('pointerover', (e) => {
+                if (e.buttons > 0 || e.pressure > 0) {
+                    field.onMouseEnter(row, col)
+                }
             });
             field.setCell(row, col, cell, cell.dataset.color)
         }
     }
 
     // Global mouseup listener
-    document.addEventListener('mouseup', () => {
+    document.addEventListener('pointerup', () => {
         field.onMouseUp()
     });
 
