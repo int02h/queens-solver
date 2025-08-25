@@ -8,18 +8,21 @@ import java.net.InetSocketAddress
 
 class WebServer {
     fun start(port: Int = 0) {
+        val dbPool = File("field-db").listFiles()
+            .orEmpty()
+            .map { it.nameWithoutExtension.drop(4).toInt() to it }
+            .associate { (size, file) -> size to FieldDB(file) }
         val server = HttpServer.create(InetSocketAddress(port), 0)
-        server.createContext("/game/", GameHandler())
+        server.createContext("/game/", GameHandler(dbPool))
         server.createContext("/health/", HealthHandler())
-        server.createContext("/", MainHandler())
+        server.createContext("/", MainHandler(dbPool))
         server.start()
-        GeneratorJob.start()
         println("Web server started on port: ${server.address.port}")
         println("http://localhost:${server.address.port}")
     }
 }
 
-class MainHandler : HttpHandler {
+class MainHandler(private val dbPool: Map<Int, FieldDB>) : HttpHandler {
     override fun handle(exchange: HttpExchange) {
         val path = exchange.requestURI.getPath()
         println("request: ${exchange.requestURI}")
@@ -27,8 +30,8 @@ class MainHandler : HttpHandler {
         if (filename.isEmpty()) {
             val template = File("web-content", "index.template.html").readText()
             val buttons = buildString {
-                Constants.SUPPORTED_SIZES.forEach { size ->
-                    val path = makeFieldUrlPath(GeneratorJob.getField(size))
+                dbPool.forEach { (size, db) ->
+                    val path = makeFieldUrlPath(db.getRandomField())
                     append("<button onclick=\"location.pathname='$path'\">${size}x${size}</button>")
                 }
             }
@@ -55,7 +58,7 @@ class MainHandler : HttpHandler {
     }
 }
 
-class GameHandler : HttpHandler {
+class GameHandler(private val dbPool: Map<Int, FieldDB>) : HttpHandler {
     override fun handle(exchange: HttpExchange) {
         val path = exchange.requestURI.getPath()
         val encodedField = path.substring(path.lastIndexOf('/') + 1)
@@ -65,7 +68,6 @@ class GameHandler : HttpHandler {
             null
         }
         if (field != null) {
-            FieldHistory.add(field)
             val response = generateGameHtml(field)
             exchange.responseHeaders.set("Content-Type", "text/html; charset=UTF-8")
             exchange.sendResponseHeaders(200, response.size.toLong())
@@ -103,13 +105,13 @@ class GameHandler : HttpHandler {
             .map { "${it.row}:${it.col}" }
             .sorted()
             .joinToString(",")
-        val nextField = GeneratorJob.getField(field.size)
+        val nextField = dbPool[field.size]?.getRandomField()
         template = template
             .replace("{{FIELD}}", table)
             .replace("{{FIELD_SIZE}}", "${field.size}")
-            .replace("{{FIELD_WIDTH_PX}}", "${getFieldWidth(field.size)}")
+            .replace("{{FIELD_WIDTH_PX}}", getFieldWidth(field.size))
             .replace("{{SOLUTION}}", encodedSolution)
-            .replace("{{URL_NEXT}}", makeFieldUrlPath(nextField))
+            .replace("{{URL_NEXT}}", nextField?.let(::makeFieldUrlPath).orEmpty())
         return template.toByteArray()
     }
 

@@ -1,6 +1,6 @@
 package com.dpforge.easyraster
 
-class Field(
+data class Field(
     val size: Int,
     val colorRegions: Map<Color, Set<Position>>
 )
