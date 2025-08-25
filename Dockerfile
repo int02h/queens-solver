@@ -27,6 +27,7 @@ WORKDIR /app
 # Copy the built jar
 COPY --from=build /workspace/build/libs/*-all.jar /app/app.jar
 COPY web-content /app/web-content
+COPY field-db /app/field-db
 
 EXPOSE 54411
 ENV JAVA_OPTS=""
