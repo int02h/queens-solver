@@ -28,7 +28,7 @@ class GeneratorApp(
 
     private fun startGeneration(random: Random) {
         while (true) {
-            val field = Generator(random).generate(size, allowEnlarging = false)
+            val field = Generator(random).generate(size)
             val count = addField(field)
             if (count == limit) {
                 break

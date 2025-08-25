@@ -137,22 +137,17 @@ class Generator(
     }
 
     private fun generateSolvableField(size: Int): Field {
-        var field: Field? = null
+        var field: Field
         var solutions: List<Set<Position>> = emptyList()
 
         do {
-            try {
-                field = generateWithPatterns(size)
-            } catch (e: Exception) {
-                println("Failed to generate field with patterns: $e")
-                continue
-            }
+            field = generateWithPatterns(size)
             if (!isValidField(field, useSolver = true)) {
                 continue
             }
             solutions = solutionFinder.findAllSolutions(field)
         } while (solutions.size != 1)
-        return field!!
+        return field
     }
 
     private fun generateWithPatterns(fieldSize: Int): Field {
@@ -186,26 +181,32 @@ class Generator(
             }
         }
 
-        for (row in 0 until fieldSize) {
-            for (col in 0 until fieldSize) {
-                if (cells[row][col] != null) {
-                    continue
-                }
-                val possibleColors = listOfNotNull(
-                    cells.getOrNull(row - 1)?.getOrNull(col),
-                    cells.getOrNull(row + 1)?.getOrNull(col),
-                    cells.getOrNull(row)?.getOrNull(col - 1),
-                    cells.getOrNull(row)?.getOrNull(col + 1),
-                    allColors.takeIf { it.isNotEmpty() }?.random(random)
-                ).toMutableList()
-                if (!possibleColors.all(patternColors::contains)) {
-                    possibleColors -= patternColors
-                }
-                val color = possibleColors.random(random)
-                allColors.remove(color)
-                cells[row][col] = color
-                colorRegions.getOrPut(color) { mutableSetOf() } += Position(row, col)
+        val freePositions = getFreePositions(cells = cells, maxRow = fieldSize - 1, maxCol = fieldSize - 1)
+            .shuffled(random)
+            .toMutableList()
+
+        while (freePositions.isNotEmpty()) {
+            val pos = freePositions.removeFirst()
+            val (row, col) = pos
+            val possibleColors = listOfNotNull(
+                cells.getOrNull(row - 1)?.getOrNull(col),
+                cells.getOrNull(row + 1)?.getOrNull(col),
+                cells.getOrNull(row)?.getOrNull(col - 1),
+                cells.getOrNull(row)?.getOrNull(col + 1),
+                allColors.takeIf { it.isNotEmpty() }?.random(random)
+            ).toMutableList()
+            if (!possibleColors.all(patternColors::contains)) {
+                possibleColors -= patternColors
             }
+            if (possibleColors.isEmpty()) {
+                freePositions += pos
+                continue
+            }
+            val color = possibleColors.random(random)
+            allColors.remove(color)
+            cells[row][col] = color
+            colorRegions.getOrPut(color) { mutableSetOf() } += Position(row, col)
+
         }
 
         return Field(
