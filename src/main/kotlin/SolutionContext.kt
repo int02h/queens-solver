@@ -15,7 +15,7 @@ class SolutionContext(field: Field) {
         .toMutableMap()
     val colorRegions: Map<Color, Set<Position>> = _colorRegions
 
-    private val cells = Array(field.size) { Array(field.size) { Color.WHITE } }
+    private val cells = Array(field.size) { Array<Color?>(field.size) { null } }
 
     var hasChanges = false
 
@@ -61,7 +61,7 @@ class SolutionContext(field: Field) {
     fun getRegionsOnRows(rows: Set<Int>, regions: ColorSet) {
         for (row in rows) {
             for (color in cells[row]) {
-                regions.add(color)
+                color?.let(regions::add)
             }
         }
     }
@@ -69,7 +69,7 @@ class SolutionContext(field: Field) {
     fun getRegionsOnCols(cols: Set<Int>, regions: ColorSet) {
         for (rowColors in cells) {
             for (col in cols) {
-                regions.add(rowColors[col])
+                rowColors[col]?.let(regions::add)
             }
         }
     }
