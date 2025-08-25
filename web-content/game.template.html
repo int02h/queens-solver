@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Queens {{FIELD_SIZE}}x{{FIELD_SIZE}}</title>
     <style>
-        html, body {
+        body {
             margin: 0;
-            padding: 0;
+            padding: 24px;
             overscroll-behavior: none;
             overflow: hidden;
             touch-action: none;
@@ -15,7 +15,7 @@
         table {
             border-collapse: collapse; /* make borders shared between cells */
             table-layout: fixed;
-            width: min(100%, {{FIELD_WIDTH_PX}})
+            width: min(100%, {{FIELD_WIDTH_PX}});
         }
 
         table, th, td {
