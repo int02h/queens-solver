@@ -10,7 +10,7 @@
             padding: 0;
             overscroll-behavior: none;
             overflow: hidden;
-            touch-action: manipulation;
+            touch-action: none;
         }
         table {
             border-collapse: collapse; /* make borders shared between cells */
@@ -116,6 +116,10 @@
     document.addEventListener('pointerup', () => {
         field.onMouseUp()
     });
+    document.addEventListener('dblclick', function(e) {
+        e.preventDefault();
+    }, { passive: false });
+
 
     const nextBtn = document.getElementById("next_btn")
     let isLoadingNext = false
