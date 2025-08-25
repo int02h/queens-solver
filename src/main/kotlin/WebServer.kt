@@ -30,8 +30,8 @@ class MainHandler(private val dbPool: Map<Int, FieldDB>) : HttpHandler {
         if (filename.isEmpty()) {
             val template = File("web-content", "index.template.html").readText()
             val buttons = buildString {
-                dbPool.forEach { (size, db) ->
-                    val path = makeFieldUrlPath(db.getRandomField())
+                dbPool.keys.sorted().forEach { size ->
+                    val path = makeFieldUrlPath(dbPool.getValue(size).getRandomField())
                     append("<button onclick=\"location.pathname='$path'\">${size}x${size}</button>")
                 }
             }
