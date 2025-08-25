@@ -99,6 +99,7 @@
             const cell = document.getElementById(`row${row}-col${col}`)
             // === Event Handlers ===
             cell.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
                 field.onMouseDown(row, col)
                 cell.releasePointerCapture(e.pointerId)
             });
