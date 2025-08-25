@@ -1,9 +1,5 @@
 package com.dpforge.easyraster
 
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.iterator
-
 interface SolutionStep {
     fun doStep(ctx: SolutionContext)
 }
@@ -20,7 +16,12 @@ object SingleCellRegionStep : SolutionStep {
 }
 
 object BlockOtherRegionStep : SolutionStep {
+    private val connections = ColorSet()
+    private var counter = IntArray(0)
+    private val intSet = mutableSetOf<Int>()
+
     override fun doStep(ctx: SolutionContext) {
+        counter = IntArray(ctx.fieldSize)
         for ((_, region) in ctx.colorRegions) {
             for (pos in region) {
                 val copy = ctx.copy()
@@ -38,46 +39,67 @@ object BlockOtherRegionStep : SolutionStep {
     }
 
     private fun checkRegions(ctx: SolutionContext): Boolean {
-        val connections = mutableSetOf<Color>()
         for (color in ctx.colorRegions.keys) {
             connections.clear()
             buildRegionRowConnections(ctx, color, connections)
-            val rows = connections.flatMap { color -> ctx.colorRegions.getValue(color) }.map { it.row }.toSet()
-            if (rows.size < connections.size) {
+            counter.fill(0)
+            var uniqueCount = 0
+            for (color in connections) {
+                for (pos in ctx.colorRegions.getValue(color)) {
+                    if (counter[pos.row] == 0) {
+                        counter[pos.row]++
+                        uniqueCount++
+                    }
+                }
+            }
+            if (uniqueCount < connections.size) {
                 return false
             }
 
             connections.clear()
             buildRegionColConnections(ctx, color, connections)
-            val cols = connections.flatMap { color -> ctx.colorRegions.getValue(color) }.map { it.col }.toSet()
-            if (cols.size < connections.size) {
+            counter.fill(0)
+            uniqueCount = 0
+            for (color in connections) {
+                for (pos in ctx.colorRegions.getValue(color)) {
+                    if (counter[pos.col] == 0) {
+                        counter[pos.col]++
+                        uniqueCount++
+                    }
+                }
+            }
+            if (uniqueCount < connections.size) {
                 return false
             }
         }
         return true
     }
 
-    private fun buildRegionRowConnections(ctx: SolutionContext, color: Color, connections: MutableSet<Color>) {
+    private fun buildRegionRowConnections(ctx: SolutionContext, color: Color, connections: ColorSet) {
         if (connections.contains(color)) {
             return
         }
-        connections += color
-        val rows = ctx.colorRegions.getValue(color).map { it.row }.toSet()
-        val affectedRegions = ctx.getRegionsOnRows(rows)
-        connections += affectedRegions
+        connections.add(color)
+        intSet.clear()
+        val rows = ctx.colorRegions.getValue(color).mapTo(intSet) { it.row }
+        val affectedRegions = ColorSet()
+        ctx.getRegionsOnRows(rows, affectedRegions)
+        connections.add(affectedRegions)
         affectedRegions.forEach { ar ->
             buildRegionRowConnections(ctx, ar, connections)
         }
     }
 
-    private fun buildRegionColConnections(ctx: SolutionContext, color: Color, connections: MutableSet<Color>) {
+    private fun buildRegionColConnections(ctx: SolutionContext, color: Color, connections: ColorSet) {
         if (connections.contains(color)) {
             return
         }
-        connections += color
-        val cols = ctx.colorRegions.getValue(color).map { it.col }.toSet()
-        val affectedRegions = ctx.getRegionsOnCols(cols)
-        connections += affectedRegions
+        connections.add(color)
+        intSet.clear()
+        val cols = ctx.colorRegions.getValue(color).mapTo(intSet) { it.col }
+        val affectedRegions = ColorSet()
+        ctx.getRegionsOnCols(cols, affectedRegions)
+        connections.add(affectedRegions)
         affectedRegions.forEach { ar ->
             buildRegionColConnections(ctx, ar, connections)
         }
@@ -86,6 +108,8 @@ object BlockOtherRegionStep : SolutionStep {
 
 // Check if it can ve replaced by BlockOtherRegionStep
 object ClashOtherRegionStep : SolutionStep {
+    private val intSet = mutableSetOf<Int>()
+
     override fun doStep(ctx: SolutionContext) {
         for ((_, region) in ctx.colorRegions) {
             for (pos in region) {
@@ -93,11 +117,17 @@ object ClashOtherRegionStep : SolutionStep {
                 copy.putQueen(pos)
                 val singleCellRegions = copy.colorRegions.values.toList()
                 for ((r1, r2) in singleCellRegions.allUnorderedPairs()) {
-                    if ((r1.map { it.col } + r2.map { it.col }).toSet().size == 1) {
+                    intSet.clear()
+                    r1.mapTo(intSet){ it.col }
+                    r2.mapTo(intSet) { it.col }
+                    if (intSet.size == 1) {
                         ctx.removePosition(pos)
                         return
                     }
-                    if ((r1.map { it.row } + r2.map { it.row }).toSet().size == 1) {
+                    intSet.clear()
+                    r1.mapTo(intSet){ it.row }
+                    r2.mapTo(intSet) { it.row }
+                    if (intSet.size == 1) {
                         ctx.removePosition(pos)
                         return
                     }
