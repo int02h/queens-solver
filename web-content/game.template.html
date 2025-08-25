@@ -109,9 +109,10 @@
     const nextBtn = document.getElementById("next_btn")
     let isLoadingNext = false
     nextBtn.addEventListener("click", function() {
-        if (!isLoadingNext) {
+        const urlNext = "{{URL_NEXT}}";
+        if (!isLoadingNext && urlNext.length > 0) {
             nextBtn.innerHTML = "Loading..."
-            location.pathname = "{{URL_NEXT}}";
+            location.pathname = urlNext;
             isLoadingNext = true
         }
     });

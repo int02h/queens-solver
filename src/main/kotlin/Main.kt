@@ -1,5 +1,6 @@
 package com.dpforge.easyraster
 
+import java.io.File
 import kotlin.random.Random
 
 private val ANSI_BG_COLOR = mapOf(
@@ -27,6 +28,7 @@ fun main(args: Array<String>) {
         "solve" -> mainSolve()
         "play" -> mainPlay()
         "server" -> mainServer(port = args.getOrNull(1)?.toIntOrNull())
+        "generator" -> mainGenerator(args.getOrNull(1)?.toIntOrNull())
     }
 }
 
@@ -78,6 +80,14 @@ private fun mainPlay() {
 
 private fun mainServer(port: Int?) {
     WebServer().start(port = port ?: 0)
+}
+
+private fun mainGenerator(size: Int?) {
+    if (size == null) {
+        println("Size is not provided")
+        return
+    }
+    GeneratorApp(folder = File("field-db"), size = size).start()
 }
 
 fun printField(field: Field) {

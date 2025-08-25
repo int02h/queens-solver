@@ -14,9 +14,9 @@ class Generator(
 
     private val solutionFinder = SolutionFinder(exitEarlier = true)
 
-    fun generate(size: Int): Field {
+    fun generate(size: Int, allowEnlarging: Boolean = true): Field {
         val isQuickGeneration = size < SLOW_GENERATION_SIZE
-        if (isQuickGeneration) {
+        if (isQuickGeneration || !allowEnlarging) {
             return generateSolvableField(size)
         }
         var field = generateSolvableField(SLOW_GENERATION_SIZE - 1)
@@ -147,7 +147,7 @@ class Generator(
                 println("Failed to generate field with patterns: $e")
                 continue
             }
-            if (!isValidField(field, useSolver = false)) {
+            if (!isValidField(field, useSolver = true)) {
                 continue
             }
             solutions = solutionFinder.findAllSolutions(field)

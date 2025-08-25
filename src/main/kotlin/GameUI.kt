@@ -230,7 +230,6 @@ class GameUI(
         private const val IS_AUTO_CROSS_ENABLED = true
 
         fun show(field: Field, solution: Set<Position>) {
-            FieldHistory.add(field)
             val frame = JFrame()
             frame.add(GameUI(field, solution))
             frame.pack()
