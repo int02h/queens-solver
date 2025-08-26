@@ -56,8 +56,11 @@ class SolutionFinder(
             }
         }
         for (region in field.colorRegions.values) {
-            val count = queens.withIndex().count { (row, col) ->
-                region.contains(Position(row, col))
+            var count = 0
+            for (pos in region) {
+                if (pos.row < queens.size && queens[pos.row] == pos.col) {
+                    count++
+                }
             }
             if (isFullQueenSet && count != 1) {
                 return true

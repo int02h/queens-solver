@@ -168,6 +168,9 @@ class Generator(
             if (freePositions.isEmpty()) {
                 break
             }
+            if (allColors.isEmpty()) {
+                break
+            }
             val pos = freePositions.random(random)
             if (pattern.canApply(cells, pos)) {
                 val color = allColors.removeAt(random.nextInt(allColors.size))

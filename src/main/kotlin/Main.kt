@@ -64,7 +64,7 @@ private fun mainSolve() {
 private fun mainPlay() {
     val startNs = System.nanoTime()
     println("Start solution generation")
-    val field = Generator(Random(System.nanoTime())).generate(10)
+    val field = Generator(Random(System.nanoTime())).generate(11, allowEnlarging = false)
 
     println("Total time      : ${(System.nanoTime() - startNs) / 1_000_000} ms")
 

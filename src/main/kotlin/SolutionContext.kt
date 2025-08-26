@@ -27,6 +27,26 @@ class SolutionContext(field: Field) {
         }
     }
 
+    fun setFrom(other: SolutionContext) {
+        _queens.clear()
+        _queens.addAll(other._queens)
+
+        _colorRegions.values.forEach { it.clear() }
+        cells.forEach { row -> row.fill(null) }
+
+        other.colorRegions.forEach { (color, region) ->
+            (_colorRegions.getValue(color)).let { dst ->
+                dst.clear()
+                dst.addAll(region)
+            }
+            region.forEach { pos ->
+                cells[pos.row][pos.col] = color
+            }
+        }
+
+        hasChanges = other.hasChanges
+    }
+
     fun putQueen(pos: Position) {
         _queens += pos
         for (col in 0 until pos.col) removePosition(Position(pos.row, col))

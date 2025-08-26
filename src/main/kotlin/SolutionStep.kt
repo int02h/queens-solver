@@ -22,9 +22,10 @@ object BlockOtherRegionStep : SolutionStep {
 
     override fun doStep(ctx: SolutionContext) {
         counter = IntArray(ctx.fieldSize)
+        val copy = ctx.copy()
         for ((_, region) in ctx.colorRegions) {
             for (pos in region) {
-                val copy = ctx.copy()
+                copy.setFrom(ctx)
                 copy.putQueen(pos)
                 if (copy.colorRegions.values.any { it.isEmpty() }) {
                     ctx.removePosition(pos)
@@ -111,9 +112,10 @@ object ClashOtherRegionStep : SolutionStep {
     private val intSet = mutableSetOf<Int>()
 
     override fun doStep(ctx: SolutionContext) {
+        val copy = ctx.copy()
         for ((_, region) in ctx.colorRegions) {
             for (pos in region) {
-                val copy = ctx.copy()
+                copy.setFrom(ctx)
                 copy.putQueen(pos)
                 val singleCellRegions = copy.colorRegions.values.toList()
                 for ((r1, r2) in singleCellRegions.allUnorderedPairs()) {
