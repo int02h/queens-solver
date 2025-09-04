@@ -6,6 +6,7 @@ class Solver(
     fun solveField(field: Field): Set<Position> {
         val steps = listOf(
             SingleCellRegionStep,
+            LeaveBlankRowOrCol,
             BlockOtherRegionStep,
             ClashOtherRegionStep,
         )

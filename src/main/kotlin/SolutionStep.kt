@@ -15,6 +15,28 @@ object SingleCellRegionStep : SolutionStep {
 
 }
 
+object LeaveBlankRowOrCol : SolutionStep {
+    override fun doStep(ctx: SolutionContext) {
+        val copy = ctx.copy()
+        for ((_, region) in ctx.colorRegions) {
+            for (pos in region) {
+                copy.setFrom(ctx)
+                copy.putQueen(pos)
+                for (i in 0 until ctx.fieldSize) {
+                    if (pos.row != i && copy.countCellOnRow(i) == 0) {
+                        ctx.removePosition(pos)
+                        return
+                    }
+                    if (pos.col != i && copy.countCellOnCol(i) == 0) {
+                        ctx.removePosition(pos)
+                        return
+                    }
+                }
+            }
+        }
+    }
+}
+
 object BlockOtherRegionStep : SolutionStep {
     private val connections = ColorSet()
     private var counter = IntArray(0)

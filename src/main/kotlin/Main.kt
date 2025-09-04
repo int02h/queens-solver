@@ -29,22 +29,21 @@ fun main(args: Array<String>) {
         "play" -> mainPlay()
         "server" -> mainServer(port = args.getOrNull(1)?.toIntOrNull())
         "generator" -> mainGenerator(args.getOrNull(1)?.toIntOrNull())
+        "perf" -> mainPerformance()
     }
 }
 
 private fun mainSolve() {
     val encodedField = listOf(
-        "ppppppppppp",
-        "opdpppppvpp",
-        "oodppppvvpp",
-        "dddddpvvvvv",
-        "wwdppppvvrr",
-        "wpdpppppvrr",
-        "wpppyprrrrr",
-        "wbpyycyyrlr",
-        "bbbycccylll",
-        "ybyyycyyylg",
-        "yyyyyyyyggg"
+        "wwwwwyyyw",
+        "wrrwwyydw",
+        "wrrrwwddw",
+        "wvgwwwddw",
+        "vvggwwwww",
+        "vvggwobbb",
+        "wpppwoobb",
+        "wppwwooww",
+        "wwwwwwwww",
     )
     val field = FieldCodec.decodeFromHumanText(encodedField)
     printField(field)
@@ -78,6 +77,18 @@ private fun mainPlay() {
     GameUI.show(field, solutionFinder.findAllSolutions(field).first())
 }
 
+private fun mainPerformance() {
+    val startNs = System.nanoTime()
+    println("Start performance testing")
+    val field = Generator(Random(12345)).generate(11, allowEnlarging = false)
+    println("Total time: ${(System.nanoTime() - startNs) / 1_000_000} ms")
+    if (
+        FieldCodec.encodeToCompressedString(field) != "2l3w3o3c2l3wov4c2l3w2v4c3l2wvbcp2c3l2wv2b3y3ld4b3ylr6d3y3r2d5gy3r2d6g5r6g4r7g"
+    ) {
+        error("Field has changed")
+    }
+}
+
 private fun mainServer(port: Int?) {
     WebServer().start(port = port ?: 0)
 }
@@ -101,7 +112,7 @@ fun printField(field: Field) {
     }
 }
 
-fun printSolutionStep(field: Field, stepColorRegions: Map<Color, Set<Position>>, stepQueens: Set<Position>) {
+fun printSolutionStep(field: Field, stepColorRegions: Map<Color, PositionSet>, stepQueens: Set<Position>) {
     for (row in 0 until field.size) {
         for (col in 0 until field.size) {
             val pos = Position(row, col)
@@ -120,7 +131,7 @@ fun printSolutionStep(field: Field, stepColorRegions: Map<Color, Set<Position>>,
     }
 }
 
-private fun Map<Color, Set<Position>>.getColor(pos: Position): Color? {
+private fun Map<Color, Iterable<Position>>.getColor(pos: Position): Color? {
     for ((color, posSet) in this) {
         if (posSet.contains(pos)) {
             return color

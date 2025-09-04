@@ -11,9 +11,9 @@ class SolutionContext(field: Field) {
     val queens: Set<Position> = _queens
 
     private val _colorRegions = field.colorRegions
-        .mapValues { it.value.toMutableSet() }
+        .mapValues { PositionSet(field.size, it.value,) }
         .toMutableMap()
-    val colorRegions: Map<Color, Set<Position>> = _colorRegions
+    val colorRegions: Map<Color, PositionSet> = _colorRegions
 
     private val cells = Array(field.size) { Array<Color?>(field.size) { null } }
 
@@ -49,6 +49,10 @@ class SolutionContext(field: Field) {
 
     fun putQueen(pos: Position) {
         _queens += pos
+
+        val region = colorRegions.filterValues { it.contains(pos) }.values.first()
+        region.forEach { p -> if (p != pos) removePosition(p) }
+
         for (col in 0 until pos.col) removePosition(Position(pos.row, col))
         for (col in (pos.col + 1) until fieldSize) removePosition(Position(pos.row, col))
         for (row in 0 until pos.row) removePosition(Position(row, pos.col))
@@ -63,6 +67,7 @@ class SolutionContext(field: Field) {
     fun removePosition(pos: Position) {
         for ((_, posSet) in _colorRegions) {
             if (posSet.remove(pos)) {
+                cells[pos.row][pos.col] = null
                 hasChanges = true
                 break
             }
@@ -71,7 +76,7 @@ class SolutionContext(field: Field) {
 
     fun copy(): SolutionContext {
         val ctx = SolutionContext(
-            Field(fieldSize, colorRegions)
+            Field(fieldSize, colorRegions.mapValues { it.value.toSet() })
         )
         ctx._queens += _queens
         ctx.hasChanges = hasChanges
@@ -92,6 +97,20 @@ class SolutionContext(field: Field) {
                 rowColors[col]?.let(regions::add)
             }
         }
+    }
+
+    fun countCellOnRow(row: Int): Int {
+        return cells[row].count { it != null }
+    }
+
+    fun countCellOnCol(col: Int): Int {
+        var count = 0
+        for (row in 0 until cells.size) {
+            if (cells[row][col] != null) {
+                count++
+            }
+        }
+        return count
     }
 }
 

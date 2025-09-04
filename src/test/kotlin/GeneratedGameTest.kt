@@ -63,25 +63,31 @@ class GeneratedGameTest {
 
     @Test
     fun test3() {
-        val field = FieldCodec.decodeFromHumanText(
-            listOf(
-                "yyyywwwww",
-                "yvvooowww",
-                "rpvvoowww",
-                "rpbvodwwg",
-                "rpbbbdwwg",
-                "rpbbbdwww",
-                "rrbbbbwww",
-                "rrbbbbbbb",
-                "rrrrbbbbb"
-            )
+        val queens = solve(
+            "yyyywwwww",
+            "yvvooowww",
+            "rpvvoowww",
+            "rpbvodwwg",
+            "rpbbbdwwg",
+            "rpbbbdwww",
+            "rrbbbbwww",
+            "rrbbbbbbb",
+            "rrrrbbbbb"
         )
-        val allSolutions = SolutionFinder().findAllSolutions(field)
-        assertEquals(1, allSolutions.size)
-        val err = assertThrows<IllegalStateException> {
-            Solver().solveField(field)
-        }
-        assertEquals("I got stuck", err.message)
+        assertEquals(
+            setOf(
+                Position(row = 0, col = 2),
+                Position(row = 1, col = 4),
+                Position(row = 2, col = 1),
+                Position(row = 3, col = 3),
+                Position(row = 4, col = 8),
+                Position(row = 5, col = 5),
+                Position(row = 6, col = 7),
+                Position(row = 7, col = 0),
+                Position(row = 8, col = 6),
+            ),
+            queens
+        )
     }
 
     private fun solve(vararg encodedField: String): Set<Position> {

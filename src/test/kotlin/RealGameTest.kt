@@ -877,6 +877,95 @@ class RealGameTest {
             queens
         )
     }
+    
+    @Test
+    fun `2025-Aug-28`() {
+        val queens = solve(
+            "vwwwwwwwwb",
+            "vgwwwwddob",
+            "vgwwwwwwob",
+            "vgwwppppob",
+            "vgwwwwwwwb",
+            "vgwwwwwwwb",
+            "vwyyyyyywb",
+            "vwwwrwwwww",
+            "wwwwwwwwww",
+            "cccccccccw"
+        )
+        assertEquals(
+            setOf(
+                Position(row = 0, col = 0),
+                Position(row = 1, col = 6),
+                Position(row = 2, col = 8),
+                Position(row = 3, col = 5),
+                Position(row = 4, col = 1),
+                Position(row = 5, col = 9),
+                Position(row = 6, col = 2),
+                Position(row = 7, col = 4),
+                Position(row = 8, col = 7),
+                Position(row = 9, col = 3),
+            ),
+            queens
+        )
+    }
+
+    @Test
+    fun `2025-Sep-02`() {
+        val queens = solve(
+            "poooooooo",
+            "pppoooooo",
+            "poooobooo",
+            "gggobbbww",
+            "gooooobww",
+            "goooooorw",
+            "yyoodoorr",
+            "yooddvoor",
+            "yyddvvvvr",
+        )
+        assertEquals(
+            setOf(
+                Position(row = 0, col = 4),
+                Position(row = 1, col = 2),
+                Position(row = 2, col = 5),
+                Position(row = 3, col = 8),
+                Position(row = 4, col = 0),
+                Position(row = 5, col = 7),
+                Position(row = 6, col = 1),
+                Position(row = 7, col = 3),
+                Position(row = 8, col = 6),
+            ),
+            queens
+        )
+    }
+
+    @Test
+    fun `2025-Sep-04`() {
+        val queens = solve(
+            "wwwwwyyyw",
+            "wrrwwyydw",
+            "wrrrwwddw",
+            "wvgwwwddw",
+            "vvggwwwww",
+            "vvggwobbb",
+            "wpppwoobb",
+            "wppwwooww",
+            "wwwwwwwww",
+        )
+        assertEquals(
+            setOf(
+                Position(row = 0, col = 5),
+                Position(row = 1, col = 1),
+                Position(row = 2, col = 7),
+                Position(row = 3, col = 2),
+                Position(row = 4, col = 0),
+                Position(row = 5, col = 8),
+                Position(row = 6, col = 3),
+                Position(row = 7, col = 6),
+                Position(row = 8, col = 4),
+            ),
+            queens
+        )
+    }
 
     private fun solve(vararg encodedField: String): Set<Position> {
         val field = FieldCodec.decodeFromHumanText(encodedField.toList())
