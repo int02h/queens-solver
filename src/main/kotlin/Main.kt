@@ -30,6 +30,7 @@ fun main(args: Array<String>) {
         "server" -> mainServer(port = args.getOrNull(1)?.toIntOrNull())
         "generator" -> mainGenerator(args.getOrNull(1)?.toIntOrNull())
         "perf" -> mainPerformance()
+        "bundle" -> mainBundle()
     }
 }
 
@@ -99,6 +100,21 @@ private fun mainGenerator(size: Int?) {
         return
     }
     GeneratorApp(folder = File("field-db"), size = size).start()
+}
+
+private fun mainBundle() {
+    val allFields = File("field-db")
+        .listFiles { f -> f.name.endsWith(".fdb") }
+        .orEmpty()
+        .map { FieldDB(it) }
+        .flatMap { it.getAllFields() }
+        .shuffled()
+
+    val writer = FieldBundleWriter(File("field-db", "queens.bundle"))
+    writer.write(allFields)
+
+    val reader = FieldBundleReader(File("field-db", "queens.bundle"))
+    reader.getItem(123)
 }
 
 fun printField(field: Field) {

@@ -34,6 +34,19 @@ class FieldDB(file: File) {
         return raf.length().toInt() / ENTRY_SIZE
     }
 
+    fun getAllFields(): List<Field> {
+        val count = getFieldCount()
+        val result = ArrayList<Field>(count)
+        repeat(count) {
+            try {
+                result += getField(it)
+            } catch (e: Exception) {
+                Unit
+            }
+        }
+        return result
+    }
+
     companion object {
         private const val ENTRY_SIZE = 128
     }
